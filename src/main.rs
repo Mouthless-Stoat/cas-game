@@ -1,11 +1,10 @@
 use bevy::prelude::*;
 
-use rand::seq::SliceRandom;
-use rand::thread_rng;
+use rand::{seq::SliceRandom, thread_rng};
 
 use bevy_test::{
     animation::{animation_transform, TransformAnimation},
-    atlast::{atlast_to_sprite, Atlast, AtlastSprite, Texture},
+    atlast::{atlast_to_sprite, Atlast, AtlastSpriteBundle, Texture},
     grid::{update_transform, GridTransform},
     *,
 };
@@ -13,22 +12,21 @@ use bevy_test::{
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
-        .add_systems(Startup, setup)
-        .add_systems(Startup, tileset)
+        .add_systems(Startup, (setup, tileset))
         .add_systems(Update, (update_transform, animation_transform))
-        .add_systems(Update, (atlast_to_sprite,))
-        .add_systems(Update, (input,))
+        .add_systems(PostUpdate, (atlast_to_sprite, input))
         .run();
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let texture = asset_server.load("sheet.png");
     commands.insert_resource(Atlast::new(
-        asset_server.load("sheet.png"),
+        texture,
         asset_server.add(TextureAtlasLayout::from_grid(
             UVec2::ONE * TILE_SIZE as u32,
-            8,
-            8,
-            None,
+            4,
+            4,
+            Some(UVec2::ONE),
             None,
         )),
     ));
@@ -49,17 +47,26 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 struct Tile;
 
 fn tileset(mut commands: Commands) {
-    let mut tiles: Vec<(AtlastSprite, GridTransform, Transform, Tile)> =
+    let mut tiles: Vec<(AtlastSpriteBundle, GridTransform, Transform, Tile)> =
         Vec::with_capacity((WIDTH * HEIGHT) as usize);
     for x in 0..WIDTH {
         for y in 0..HEIGHT {
             tiles.push((
-                AtlastSprite(
+                AtlastSpriteBundle::new(
                     *[
                         Texture::Blank,
-                        Texture::Ground1,
-                        Texture::Ground2,
-                        Texture::Ground3,
+                        Texture::Blank,
+                        Texture::Blank,
+                        Texture::Blank,
+                        Texture::Blank,
+                        Texture::Blank,
+                        Texture::Blank,
+                        Texture::Brick,
+                        Texture::Flower,
+                        Texture::FlowerPatch,
+                        Texture::Grass,
+                        Texture::Soil,
+                        Texture::Soil,
                     ]
                     .choose(&mut thread_rng())
                     .unwrap(),
@@ -93,6 +100,7 @@ fn input(
         if !dir.is_zero() {
             animation.old_transform = **transform;
             transform.translate(dir, 1);
+            break;
         }
     }
 

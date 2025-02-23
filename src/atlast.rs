@@ -18,14 +18,9 @@ macro_rules! texture_enum {
 }
 
 texture_enum! {
-    Ground1,
-    Ground2,
-    Ground3,
-    PlayerL,
-    PlayerR,
-    PlayerU,
-    PlayerD,
-    Blank
+    Player, Blank, Dwarf,
+    Snake, Zombie, Goblin,
+    Ground, Brick, Soil, Grass, Flower, Grass2, FlowerPatch
 }
 
 #[derive(Resource)]
@@ -39,27 +34,43 @@ impl Atlast {
         Atlast { texture, layout }
     }
 
-    pub fn get_sprite(&self, index: Texture) -> Sprite {
-        Sprite::from_atlas_image(
+    pub fn as_sprite_data(&self, texture: Texture) -> (Handle<Image>, TextureAtlas) {
+        (
             self.texture.clone(),
             TextureAtlas {
                 layout: self.layout.clone(),
-                index: index.into(),
+                index: texture.into(),
             },
         )
+    }
+}
+
+#[derive(Bundle)]
+pub struct AtlastSpriteBundle {
+    atlast: AtlastSprite,
+    sprite: Sprite,
+}
+
+impl AtlastSpriteBundle {
+    pub fn new(texture: Texture) -> Self {
+        AtlastSpriteBundle {
+            atlast: AtlastSprite(texture),
+            sprite: Sprite::default(),
+        }
     }
 }
 
 #[derive(Component)]
 pub struct AtlastSprite(pub Texture);
 
-pub fn atlast_to_sprite(
-    mut commands: Commands,
-    atlast: Res<Atlast>,
-    query: Query<(Entity, &AtlastSprite)>,
-) {
-    for (e, a) in &query {
-        let mut e = commands.entity(e);
-        e.insert(atlast.get_sprite(a.0));
+pub fn atlast_to_sprite(atlast: Res<Atlast>, mut query: Query<(&mut Sprite, &AtlastSprite)>) {
+    for (mut s, AtlastSprite(t)) in &mut query {
+        if let Some(a) = &mut s.texture_atlas {
+            a.index = (*t).into()
+        } else {
+            let (i, t) = atlast.as_sprite_data(*t);
+            s.image = i;
+            s.texture_atlas = Some(t)
+        }
     }
 }

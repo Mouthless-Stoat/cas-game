@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 
-use crate::animation::TransformAnimation;
-use crate::{Direction, TILE_SIZE};
+use crate::{animation::TransformAnimation, Direction, TILE_SIZE};
 
 #[derive(Component, Default, Clone, Copy)]
 pub struct GridTransform {
