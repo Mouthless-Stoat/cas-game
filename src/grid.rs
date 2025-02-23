@@ -26,14 +26,16 @@ impl GridTransform {
         }
     }
 
+    #[must_use]
     pub fn as_vec3(&self) -> Vec3 {
         Vec3::new(
-            (self.translation.x * TILE_SIZE as i32) as f32 + TILE_SIZE as f32 / 2.0,
-            (self.translation.y * TILE_SIZE as i32) as f32 - TILE_SIZE as f32 / 2.0,
+            (self.translation.x * i32::from(TILE_SIZE)) as f32 + f32::from(TILE_SIZE) / 2.0,
+            (self.translation.y * i32::from(TILE_SIZE)) as f32 - f32::from(TILE_SIZE) / 2.0,
             0.0,
         )
     }
 
+    #[must_use]
     pub fn as_vec3_with_z(&self, z: f32) -> Vec3 {
         self.as_vec3().with_z(z)
     }
@@ -42,8 +44,8 @@ impl GridTransform {
 impl From<GridTransform> for Vec3 {
     fn from(val: GridTransform) -> Self {
         Vec3::new(
-            (val.translation.x * TILE_SIZE as i32) as f32,
-            (val.translation.y * TILE_SIZE as i32) as f32,
+            (val.translation.x * i32::from(TILE_SIZE)) as f32,
+            (val.translation.y * i32::from(TILE_SIZE)) as f32,
             0.0,
         )
     }

@@ -17,9 +17,9 @@ pub struct TransformAnimation {
 impl Default for TransformAnimation {
     fn default() -> Self {
         TransformAnimation {
-            old_transform: Default::default(),
-            duration: Default::default(),
-            progress: Default::default(),
+            old_transform: GridTransform::default(),
+            duration: Duration::default(),
+            progress: Duration::default(),
             function: EaseFunction::Linear,
         }
     }

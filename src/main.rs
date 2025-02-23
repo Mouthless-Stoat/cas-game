@@ -6,7 +6,7 @@ use bevy_test::{
     animation::{animation_transform, TransformAnimation},
     atlast::{atlast_to_sprite, Atlast, AtlastSpriteBundle, Texture},
     grid::{update_transform, GridTransform},
-    *,
+    Direction, Player, PlayerBundle, HEIGHT, TILE_SIZE, WIDTH,
 };
 
 fn main() {
@@ -19,11 +19,10 @@ fn main() {
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let texture = asset_server.load("sheet.png");
     commands.insert_resource(Atlast::new(
-        texture,
+        asset_server.load("sheet.png"),
         asset_server.add(TextureAtlasLayout::from_grid(
-            UVec2::ONE * TILE_SIZE as u32,
+            UVec2::ONE * u32::from(TILE_SIZE),
             4,
             4,
             Some(UVec2::ONE),
@@ -35,7 +34,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         Camera2d,
         OrthographicProjection {
             scaling_mode: bevy::render::camera::ScalingMode::FixedVertical {
-                viewport_height: (TILE_SIZE * (HEIGHT + 2)) as f32,
+                viewport_height: f32::from(TILE_SIZE * (HEIGHT + 2)),
             },
             ..OrthographicProjection::default_2d()
         },
@@ -72,16 +71,16 @@ fn tileset(mut commands: Commands) {
                     .unwrap(),
                 ),
                 GridTransform::from_xy(
-                    x as i32 - WIDTH as i32 / 2,
-                    y as i32 - HEIGHT as i32 / 2 + 1,
+                    i32::from(x) - i32::from(WIDTH) / 2,
+                    i32::from(y) - i32::from(HEIGHT) / 2 + 1,
                 ),
                 Transform::from_xyz(0.0, 0.0, -10.0),
                 Tile,
-            ))
+            ));
         }
     }
 
-    commands.spawn_batch(tiles)
+    commands.spawn_batch(tiles);
 }
 
 fn input(
@@ -105,7 +104,7 @@ fn input(
     }
 
     transform.translation = transform.translation.clamp(
-        -IVec2::new(WIDTH as i32 / 2, HEIGHT as i32 / 2 - 1),
-        IVec2::new(WIDTH as i32 / 2 - 1, HEIGHT as i32 / 2),
+        -IVec2::new(i32::from(WIDTH) / 2, i32::from(HEIGHT) / 2 - 1),
+        IVec2::new(i32::from(WIDTH) / 2 - 1, i32::from(HEIGHT) / 2),
     );
 }

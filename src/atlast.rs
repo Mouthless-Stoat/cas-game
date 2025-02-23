@@ -30,10 +30,12 @@ pub struct Atlast {
 }
 
 impl Atlast {
+    #[must_use]
     pub fn new(texture: Handle<Image>, layout: Handle<TextureAtlasLayout>) -> Self {
         Atlast { texture, layout }
     }
 
+    #[must_use]
     pub fn as_sprite_data(&self, texture: Texture) -> (Handle<Image>, TextureAtlas) {
         (
             self.texture.clone(),
@@ -52,10 +54,11 @@ pub struct AtlastSpriteBundle {
 }
 
 impl AtlastSpriteBundle {
+    #[must_use]
     pub fn new(texture: Texture) -> Self {
         AtlastSpriteBundle {
             atlast: AtlastSprite(texture),
-            sprite: Sprite::default(),
+            sprite: default(),
         }
     }
 }
@@ -66,11 +69,11 @@ pub struct AtlastSprite(pub Texture);
 pub fn atlast_to_sprite(atlast: Res<Atlast>, mut query: Query<(&mut Sprite, &AtlastSprite)>) {
     for (mut s, AtlastSprite(t)) in &mut query {
         if let Some(a) = &mut s.texture_atlas {
-            a.index = (*t).into()
+            a.index = (*t).into();
         } else {
             let (i, t) = atlast.as_sprite_data(*t);
             s.image = i;
-            s.texture_atlas = Some(t)
+            s.texture_atlas = Some(t);
         }
     }
 }

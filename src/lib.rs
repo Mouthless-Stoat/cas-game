@@ -24,7 +24,7 @@ pub enum Direction {
 }
 
 impl Direction {
-    pub fn is_zero(self) -> bool {
+    #[must_use] pub fn is_zero(self) -> bool {
         matches!(self, Direction::Zero)
     }
 }
