@@ -1,6 +1,11 @@
 #![allow(missing_docs)]
 
-use std::time::Duration;
+use std::{
+    fs::File,
+    io::{Read, Seek, SeekFrom},
+    path::PathBuf,
+    time::Duration,
+};
 
 use bevy::prelude::*;
 use cas::prelude::*;
@@ -18,12 +23,35 @@ fn main() {
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+    // read the width and height of the sheet
+    let (width, height) = {
+        // consult the png spec: here http://www.libpng.org/pub/png/spec/1.2/PNG-Structure.html
+
+        // load the file
+        let mut f = File::open(
+            [env!("CARGO_MANIFEST_DIR"), "assets", "sheet.png"]
+                .iter()
+                .collect::<PathBuf>(),
+        )
+        .unwrap();
+        f.seek(SeekFrom::Start(16)).unwrap(); // skip the first 16 bytes
+
+        let mut buf = [0; 8];
+        f.read_exact(&mut buf).unwrap(); // read the next 8 bytes
+
+        // assembly 4 byte into u32 for width and heigh
+        (
+            u32::from_be_bytes(buf[0..4].try_into().unwrap()),
+            u32::from_be_bytes(buf[4..8].try_into().unwrap()),
+        )
+    };
+
     commands.insert_resource(Atlas::new(
         asset_server.load("sheet.png"),
         asset_server.add(TextureAtlasLayout::from_grid(
             UVec2::ONE * u32::from(TILE_SIZE),
-            4,
-            4,
+            width / u32::from(TILE_SIZE + 2),
+            height / u32::from(TILE_SIZE + 2),
             Some(UVec2::ONE * 2),
             Some(UVec2::ONE),
         )),
@@ -56,9 +84,8 @@ fn tileset(mut commands: Commands) {
                         Texture::Blank,
                         Texture::Blank,
                         Texture::Blank,
-                        Texture::Blank,
-                        Texture::Blank,
-                        Texture::Blank,
+                        Texture::Brick,
+                        Texture::Brick,
                         Texture::Brick,
                         Texture::Flower,
                         Texture::Grass,
