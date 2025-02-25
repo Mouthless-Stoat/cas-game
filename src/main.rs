@@ -13,8 +13,18 @@ use cas::prelude::*;
 use rand::{seq::SliceRandom, thread_rng};
 
 fn main() {
+    let default_plugin = DefaultPlugins
+        .set(ImagePlugin::default_nearest())
+        .set(WindowPlugin {
+            primary_window: Some(Window {
+                title: "CAS Game".into(),
+                ..default()
+            }),
+            ..default()
+        });
+
     App::new()
-        .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
+        .add_plugins(default_plugin)
         .insert_resource(ClearColor(Color::BLACK))
         .add_systems(Startup, (setup, tileset))
         .add_systems(Update, (update_transform, transform_animation))
