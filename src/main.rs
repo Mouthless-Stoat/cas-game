@@ -1,5 +1,7 @@
 #![allow(missing_docs)]
 
+use std::time::Duration;
+
 use bevy::prelude::*;
 use cas::prelude::*;
 
@@ -8,6 +10,7 @@ use rand::{seq::SliceRandom, thread_rng};
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
+        .insert_resource(ClearColor(Color::BLACK))
         .add_systems(Startup, (setup, tileset))
         .add_systems(Update, (update_transform, transform_animation))
         .add_systems(PostUpdate, (atlas_to_sprite, input))
@@ -21,8 +24,8 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             UVec2::ONE * u32::from(TILE_SIZE),
             4,
             4,
+            Some(UVec2::ONE * 2),
             Some(UVec2::ONE),
-            None,
         )),
     ));
 
@@ -58,7 +61,6 @@ fn tileset(mut commands: Commands) {
                         Texture::Blank,
                         Texture::Brick,
                         Texture::Flower,
-                        Texture::FlowerPatch,
                         Texture::Grass,
                         Texture::Soil,
                         Texture::Soil,
@@ -83,6 +85,7 @@ fn input(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     mut transform: Single<&mut GridTransform, With<Player>>,
     mut animation: Single<&mut TransformAnimation, With<Player>>,
+    mut sprite: Single<&mut AtlasSprite, With<Player>>,
 ) {
     for i in keyboard_input.get_just_pressed() {
         let dir = match i {
@@ -95,6 +98,12 @@ fn input(
         if !dir.is_zero() {
             animation.old_transform = **transform;
             transform.translate(dir, 1);
+            if matches!(dir, Direction::Left) {
+                sprite.flip_x = true;
+            } else if matches!(dir, Direction::Right) {
+                sprite.flip_x = false;
+            }
+            animation.duration = Duration::from_millis(100);
             break;
         }
     }
