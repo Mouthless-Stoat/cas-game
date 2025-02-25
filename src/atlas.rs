@@ -9,35 +9,28 @@
 
 use bevy::prelude::*;
 
-macro_rules! texture_enum {
-    ($(#[$attr:meta])*---$($n:ident),*) => {
-
-        $(#[$attr])*
-        #[derive(Clone, Copy)]
-        pub enum Texture {
-            $(
-                #[allow(missing_docs)]
-                $n
-            ),*
-        }
-
-        impl From<Texture> for usize {
-            fn from(val: Texture) -> Self {
-                match val {
-                    $(Texture::$n => ${index()}),*
-                }
-            }
-        }
-    };
+/// Enum for texture in the atlas
+#[derive(Clone, Copy)]
+#[allow(missing_docs)]
+pub enum Texture {
+    Player = 0,
+    Blank,
+    Dwarf,
+    Snake,
+    Zombie,
+    Goblin,
+    Ground,
+    Brick,
+    Soil,
+    Grass,
+    Flower,
+    Grass2,
+    Flower2,
 }
-
-// Order here does matter as it refer to the index in the atlas.
-texture_enum! {
-    /// Enum for texture within the atlas.
-    ---
-    Player, Blank, Dwarf,
-    Snake, Zombie, Goblin,
-    Ground, Brick, Soil, Grass, Flower, Grass2, FlowerPatch
+impl From<Texture> for usize {
+    fn from(val: Texture) -> Self {
+        val as usize
+    }
 }
 
 /// Global resource for atlas resource.
@@ -77,25 +70,36 @@ impl Atlas {
 pub struct AtlasSprite {
     /// Texture to index the atlas with.
     pub texture: Texture,
+    /// Flip the sprite across the x axis
+    pub flip_x: bool,
+    /// Flip the sprite across the y axis
+    pub flip_y: bool,
 }
 
 impl AtlasSprite {
     /// Create a new [`AtlasSprite`] using a given [`Texture`].
     #[must_use]
     pub fn new(texture: Texture) -> AtlasSprite {
-        AtlasSprite { texture }
+        AtlasSprite {
+            texture,
+            flip_x: false,
+            flip_y: false,
+        }
     }
 }
 
 /// Convert atlas data to sprite.
 pub fn atlas_to_sprite(atlas: Res<Atlas>, mut query: Query<(&mut Sprite, &AtlasSprite)>) {
-    for (mut s, AtlasSprite { texture: t }) in &mut query {
-        if let Some(a) = &mut s.texture_atlas {
-            a.index = (*t).into();
+    for (mut sprite, atlas_sprite) in &mut query {
+        if let Some(a) = &mut sprite.texture_atlas {
+            a.index = (atlas_sprite.texture).into();
         } else {
-            let (i, t) = atlas.as_sprite_data(*t);
-            s.image = i;
-            s.texture_atlas = Some(t);
+            let (i, t) = atlas.as_sprite_data(atlas_sprite.texture);
+            sprite.image = i;
+            sprite.texture_atlas = Some(t);
         }
+
+        sprite.flip_x = atlas_sprite.flip_x;
+        sprite.flip_y = atlas_sprite.flip_y;
     }
 }
