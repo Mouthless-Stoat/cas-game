@@ -1,29 +1,14 @@
+//! Contain implementations for the player.
+
 use bevy::prelude::*;
 
-use crate::{
-    animation::TransformAnimation,
-    atlast::{AtlastSpriteBundle, Texture},
-    GridTransform,
-};
+use crate::prelude::*;
 
+/// Marker component for the player
 #[derive(Component)]
+#[require(AtlasSprite(player_sprite), GridTransform, TransformAnimation)]
 pub struct Player;
 
-#[derive(Bundle)]
-pub struct PlayerBundle {
-    pub sprite: AtlastSpriteBundle,
-    pub transform: GridTransform,
-    pub marker: Player,
-    pub transform_animation: TransformAnimation,
-}
-
-impl Default for PlayerBundle {
-    fn default() -> Self {
-        PlayerBundle {
-            sprite: AtlastSpriteBundle::new(Texture::Player),
-            transform: GridTransform::default(),
-            marker: Player,
-            transform_animation: TransformAnimation::default(),
-        }
-    }
+fn player_sprite() -> AtlasSprite {
+    AtlasSprite::new(Texture::Player)
 }

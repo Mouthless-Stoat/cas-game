@@ -1,25 +1,21 @@
+#![allow(missing_docs)]
+
 use bevy::prelude::*;
+use cas::prelude::*;
 
 use rand::{seq::SliceRandom, thread_rng};
-
-use bevy_test::{
-    animation::{animation_transform, TransformAnimation},
-    atlast::{atlast_to_sprite, Atlast, AtlastSpriteBundle, Texture},
-    grid::{update_transform, GridTransform},
-    Direction, Player, PlayerBundle, HEIGHT, TILE_SIZE, WIDTH,
-};
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
         .add_systems(Startup, (setup, tileset))
-        .add_systems(Update, (update_transform, animation_transform))
-        .add_systems(PostUpdate, (atlast_to_sprite, input))
+        .add_systems(Update, (update_transform, transform_animation))
+        .add_systems(PostUpdate, (atlas_to_sprite, input))
         .run();
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.insert_resource(Atlast::new(
+    commands.insert_resource(Atlas::new(
         asset_server.load("sheet.png"),
         asset_server.add(TextureAtlasLayout::from_grid(
             UVec2::ONE * u32::from(TILE_SIZE),
@@ -39,19 +35,19 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..OrthographicProjection::default_2d()
         },
     ));
-    commands.spawn(PlayerBundle::default());
+    commands.spawn(Player);
 }
 
 #[derive(Component)]
 struct Tile;
 
 fn tileset(mut commands: Commands) {
-    let mut tiles: Vec<(AtlastSpriteBundle, GridTransform, Transform, Tile)> =
+    let mut tiles: Vec<(AtlasSprite, GridTransform, Transform, Tile)> =
         Vec::with_capacity((WIDTH * HEIGHT) as usize);
     for x in 0..WIDTH {
         for y in 0..HEIGHT {
             tiles.push((
-                AtlastSpriteBundle::new(
+                AtlasSprite::new(
                     *[
                         Texture::Blank,
                         Texture::Blank,

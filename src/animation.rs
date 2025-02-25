@@ -1,17 +1,34 @@
+//! Include anomation implementation for the engine.
+//! - [`TransformAnimation`]: Aniamtion releated to an object transform.
+
 use std::time::Duration;
 
 use bevy::prelude::*;
 
 use crate::grid::GridTransform;
 
+/// Animation for object transform. Easing between 2 transform value.
 #[derive(Component, Clone, Copy)]
 pub struct TransformAnimation {
+    /// Old postiion to ease from.
     pub old_transform: GridTransform,
 
+    /// The duration of the animation.
     pub duration: Duration,
-    pub progress: Duration,
+    progress: Duration,
 
-    pub function: EaseFunction,
+    function: EaseFunction,
+}
+
+impl TransformAnimation {
+    /// Create a new [`TransformAnimation`] component with a given `function`.
+    #[allow(unused)]
+    fn with_function(function: EaseFunction) -> Self {
+        TransformAnimation {
+            function,
+            ..Default::default()
+        }
+    }
 }
 
 impl Default for TransformAnimation {
@@ -25,7 +42,8 @@ impl Default for TransformAnimation {
     }
 }
 
-pub fn animation_transform(
+/// System to handle [`TransformAnimation`] and animate them.
+pub fn transform_animation(
     fixed_time: Res<Time<Fixed>>,
     mut data: Query<(&mut Transform, &GridTransform, &mut TransformAnimation)>,
 ) {
@@ -48,7 +66,7 @@ pub fn animation_transform(
 
         let z = transform.translation.z;
 
-        // create a easing jerk
+        // create a easing curve
         let curve = EasingCurve::new(
             old_transform.as_vec3_with_z(z),
             grid.as_vec3_with_z(z),
