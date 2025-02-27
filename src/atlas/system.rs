@@ -18,7 +18,7 @@ pub fn create_global_atlas(mut commands: Commands, asset_server: Res<AssetServer
 
         // load the file
         let mut f = File::open(
-            [env!("CARGO_MANIFEST_DIR"), "assets", "sheet.png"]
+            [env!("CARGO_MANIFEST_DIR"), "assets", "atlas.png"]
                 .iter()
                 .collect::<PathBuf>(),
         )
@@ -37,8 +37,8 @@ pub fn create_global_atlas(mut commands: Commands, asset_server: Res<AssetServer
 
     let mut global_atlas = GlobalAtlas::new();
 
-    global_atlas.add_atlas(Atlas::new(
-        asset_server.load("sheet.png"),
+    let main_atlas = Atlas::new(
+        asset_server.load("atlas.png"),
         asset_server.add(TextureAtlasLayout::from_grid(
             UVec2::ONE * u32::from(TILE_SIZE),
             width / u32::from(TILE_SIZE + 2),
@@ -46,7 +46,36 @@ pub fn create_global_atlas(mut commands: Commands, asset_server: Res<AssetServer
             Some(UVec2::ONE * 2),
             Some(UVec2::ONE),
         )),
-    ));
+    );
+
+    let wall_atlas = {
+        let texture = asset_server.load("wall_atlas.png");
+
+        let mut atlas_layout = TextureAtlasLayout::new_empty(UVec2::new(12, 30));
+
+        for i in 0..5 {
+            let top_corner = UVec2::new(i * 6 + 1, 1);
+            atlas_layout.add_texture(URect::from_corners(
+                top_corner,
+                top_corner + UVec2::new(4, 3),
+            ));
+        }
+
+        for i in 0..5 {
+            let top_corner = UVec2::new(i * 6 + 1, 5);
+            atlas_layout.add_texture(URect::from_corners(
+                top_corner,
+                top_corner + UVec2::new(4, 5),
+            ));
+        }
+
+        let layout = asset_server.add(atlas_layout);
+
+        Atlas::new(texture, layout)
+    };
+
+    global_atlas.add_atlas(main_atlas);
+    global_atlas.add_atlas(wall_atlas);
 
     commands.insert_resource(global_atlas);
 }
