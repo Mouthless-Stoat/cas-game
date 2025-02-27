@@ -9,64 +9,13 @@
 
 use bevy::prelude::*;
 
-/// Enum for texture in the atlas
-#[derive(Clone, Copy)]
-#[allow(missing_docs)]
-#[repr(usize)]
-pub enum Texture {
-    Player = 0,
-    Blank,
-    Dwarf,
-    Snake,
-    Zombie,
-    Goblin,
-    Ground,
-    Brick,
-    Soil,
-    Grass,
-    Flower,
-    Grass2,
-    Flower2,
+mod system;
+mod texture;
 
-    Wall {
-        /// Is this the top wall piece
-        top: bool,
-        /// Is this wall piece connected on the side or horizontally
-        horz_wall: bool,
-        /// Is this wall piece connected on the top or vertically
-        vert_wall: bool,
-        /// If this wall piece have a walled corner
-        corner: bool,
-    },
-}
-impl From<Texture> for usize {
-    fn from(val: Texture) -> Self {
-        match val {
-            Texture::Wall {
-                top,
-                horz_wall,
-                vert_wall,
-                corner,
-            } => {
-                let top_offset = if top { 0 } else { 5 };
+pub use system::*;
+pub use texture::*;
 
-                if corner {
-                    return top_offset + 4;
-                }
-
-                let horz_offset = if horz_wall { 0 } else { 2 };
-                let vert_offset = if vert_wall { 0 } else { 1 };
-
-                top_offset + horz_offset + vert_offset
-            }
-            // this is literal black magic, I do not know what this mean, any question please
-            // consult the rustonomicon
-            _ => unsafe { *(&raw const val).cast::<Self>() },
-        }
-    }
-}
-
-/// Representing a atlas witha texture and a layout.
+/// Representing a atlas with a texture and a layout.
 pub struct Atlas {
     texture: Handle<Image>,
     layout: Handle<TextureAtlasLayout>,
@@ -94,6 +43,7 @@ impl Atlas {
     }
 }
 
+/// Use to index into the global atlas
 #[repr(usize)]
 enum GlobalAtlasIndex {
     Main = 0,
@@ -150,28 +100,5 @@ impl AtlasSprite {
             flip_x: false,
             flip_y: false,
         }
-    }
-}
-
-/// Convert atlas data to sprite.
-pub fn atlas_to_sprite(atlas: Res<GlobalAtlas>, mut query: Query<(&mut Sprite, &AtlasSprite)>) {
-    for (mut sprite, atlas_sprite) in &mut query {
-        if let Some(a) = &mut sprite.texture_atlas {
-            a.index = (atlas_sprite.texture).into();
-        } else {
-            let (i, t) = {
-                let t = atlas_sprite.texture;
-                match t {
-                    Texture::Wall { .. } => atlas.sprite_from_atlas(GlobalAtlasIndex::Wall, t),
-                    _ => atlas.sprite_from_atlas(GlobalAtlasIndex::Main, t),
-                }
-            };
-
-            sprite.image = i;
-            sprite.texture_atlas = Some(t);
-        }
-
-        sprite.flip_x = atlas_sprite.flip_x;
-        sprite.flip_y = atlas_sprite.flip_y;
     }
 }
