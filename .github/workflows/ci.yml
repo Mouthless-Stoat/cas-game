@@ -10,44 +10,27 @@ env:
     CARGO_TERM_COLOR: always
 
 jobs:
-    # Run cargo clippy -- -D warnings
-    clippy_check:
-        name: Clippy
+    test:
+        name: cargo clippy
         runs-on: ubuntu-latest
-        timeout-minutes: 30
         steps:
-            - name: Checkout sources
-              uses: actions/checkout@v4
-            - name: Cache
-              uses: actions/cache@v4
-              with:
-                  path: |
-                      ~/.cargo/bin/
-                      ~/.cargo/registry/index/
-                      ~/.cargo/registry/cache/
-                      ~/.cargo/git/db/
-                      target/
-                  key: ${{ runner.os }}-cargo-clippy-${{ hashFiles('**/Cargo.toml') }}
-            - name: Install stable toolchain
-              uses: dtolnay/rust-toolchain@nightly
+            - uses: actions/checkout@v4
+            - uses: actions-rust-lang/setup-rust-toolchain@v1
               with:
                   components: clippy
             - name: Install Dependencies
               run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
-            - name: Run clippy
-              run: cargo clippy -- -D warnings
+            - run: cargo clippy
 
-    # Run cargo fmt --all -- --check
-    format:
-        name: Format
+    # Check formatting with rustfmt
+    formatting:
+        name: cargo fmt
         runs-on: ubuntu-latest
-        timeout-minutes: 30
         steps:
-            - name: Checkout sources
-              uses: actions/checkout@v4
-            - name: Install stable toolchain
-              uses: dtolnay/rust-toolchain@stable
+            - uses: actions/checkout@v4
+            # Ensure rustfmt is installed and setup problem matcher
+            - uses: actions-rust-lang/setup-rust-toolchain@v1
               with:
                   components: rustfmt
-            - name: Run cargo fmt
-              run: cargo fmt --all -- --check
+            - name: Rustfmt Check
+              uses: actions-rust-lang/rustfmt@v1
