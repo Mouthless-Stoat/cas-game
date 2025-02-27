@@ -93,7 +93,7 @@ fn input(
             KeyCode::KeyD | KeyCode::ArrowRight => Direction::Right,
             _ => Direction::Zero,
         };
-        if !dir.is_zero() {
+        if !dir.is_zero() && animation.duration.is_zero() {
             animation.old_transform = **transform;
             transform.translate(dir, 1);
             if matches!(dir, Direction::Left) {
