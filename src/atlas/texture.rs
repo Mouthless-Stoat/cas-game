@@ -28,6 +28,7 @@ pub enum Texture {
         corner: bool,
     },
 }
+
 impl From<Texture> for usize {
     fn from(val: Texture) -> Self {
         match val {
