@@ -56,7 +56,9 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         )
     };
 
-    commands.insert_resource(Atlas::new(
+    let mut global_atlas = GlobalAtlas::new();
+
+    global_atlas.add_atlas(Atlas::new(
         asset_server.load("sheet.png"),
         asset_server.add(TextureAtlasLayout::from_grid(
             UVec2::ONE * u32::from(TILE_SIZE),
@@ -66,6 +68,8 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             Some(UVec2::ONE),
         )),
     ));
+
+    commands.insert_resource(global_atlas);
 
     commands.spawn((
         Camera2d,
