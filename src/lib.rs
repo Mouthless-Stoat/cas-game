@@ -14,9 +14,9 @@ pub mod player;
 pub static TILE_SIZE: u16 = 8;
 
 /// Visible area width.
-pub static WIDTH: u16 = 16;
+pub static WIDTH: u16 = 19;
 /// Visible area height
-pub static HEIGHT: u16 = 10;
+pub static HEIGHT: u16 = 11;
 
 /// Enum for direction.
 #[allow(missing_docs)]

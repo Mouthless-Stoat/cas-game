@@ -6,6 +6,7 @@
 use bevy::prelude::*;
 
 use crate::{animation::TransformAnimation, Direction, TILE_SIZE};
+use crate::{HEIGHT, WIDTH};
 
 /// Grid transform component to define a grid position. Interface with the [`Transform`] component.
 #[allow(missing_docs)]
@@ -21,9 +22,9 @@ impl GridTransform {
     pub fn translate(&mut self, dir: Direction, amount: i32) {
         match dir {
             Direction::Zero => (),
-            Direction::Up => self.translation.y += amount,
-            Direction::Down => self.translation.y -= amount,
+            Direction::Down => self.translation.y += amount,
             Direction::Right => self.translation.x += amount,
+            Direction::Up => self.translation.y -= amount,
             Direction::Left => self.translation.x -= amount,
         }
     }
@@ -39,11 +40,14 @@ impl GridTransform {
     /// Convert this transform to a [`Vec3`] with the `z` index at `0.0`
     #[must_use]
     pub fn as_vec3(&self) -> Vec3 {
-        Vec3::new(
-            (self.translation.x * i32::from(TILE_SIZE)) as f32 + f32::from(TILE_SIZE) / 2.0,
-            (self.translation.y * i32::from(TILE_SIZE)) as f32 - f32::from(TILE_SIZE) / 2.0,
-            0.0,
-        )
+        let f32_tile = f32::from(TILE_SIZE);
+        let f32_width = f32::from(WIDTH);
+        let f32_height = f32::from(HEIGHT);
+
+        let x = (self.translation.x as f32 - f32_width / 2.0) * f32_tile;
+        let y = (f32_height / 2.0 - self.translation.y as f32) * f32_tile;
+
+        Vec3::new(x, y, 0.0)
     }
 
     /// Convert this transform to a [`Vec3`] with the given `z` index.
