@@ -9,6 +9,7 @@ use crate::grid::GridTransform;
 
 /// Animation for object transform. Easing between 2 transform value.
 #[derive(Component, Clone, Copy)]
+#[require(GridTransform)]
 pub struct TransformAnimation {
     /// Old postiion to ease from.
     pub old_transform: GridTransform,

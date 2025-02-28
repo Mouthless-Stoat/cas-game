@@ -10,6 +10,7 @@ use crate::{animation::TransformAnimation, Direction, TILE_SIZE};
 /// Grid transform component to define a grid position. Interface with the [`Transform`] component.
 #[allow(missing_docs)]
 #[derive(Component, Default, Clone, Copy)]
+#[require(Transform)]
 pub struct GridTransform {
     pub translation: IVec2,
     pub rotation: Quat,
@@ -49,16 +50,6 @@ impl GridTransform {
     #[must_use]
     pub fn as_vec3_with_z(&self, z: f32) -> Vec3 {
         self.as_vec3().with_z(z)
-    }
-}
-
-impl From<GridTransform> for Vec3 {
-    fn from(val: GridTransform) -> Self {
-        Vec3::new(
-            (val.translation.x * i32::from(TILE_SIZE)) as f32,
-            (val.translation.y * i32::from(TILE_SIZE)) as f32,
-            0.0,
-        )
     }
 }
 

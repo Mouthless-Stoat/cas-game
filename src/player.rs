@@ -6,7 +6,7 @@ use crate::prelude::*;
 
 /// Marker component for the player
 #[derive(Component)]
-#[require(AtlasSprite(player_sprite), GridTransform, TransformAnimation)]
+#[require(AtlasSprite(player_sprite), TransformAnimation)]
 pub struct Player;
 
 fn player_sprite() -> AtlasSprite {
