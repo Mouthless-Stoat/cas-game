@@ -40,7 +40,7 @@ impl From<Texture> for usize {
             } => {
                 let top_offset = if top { 0 } else { 5 };
 
-                if corner {
+                if corner && horz_wall && vert_wall {
                     return top_offset + 4;
                 }
 
