@@ -7,7 +7,6 @@ pub enum Texture {
     Blank,
     Dwarf,
     Snake,
-    Zombie,
     Goblin,
     Ground,
     Brick,

@@ -4,8 +4,7 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 use cas::prelude::*;
-
-use rand::{seq::SliceRandom, thread_rng};
+use cas::tilemap::tileset;
 
 fn main() {
     let default_plugin = DefaultPlugins
@@ -21,7 +20,7 @@ fn main() {
     App::new()
         .add_plugins(default_plugin)
         .insert_resource(ClearColor(Color::BLACK))
-        .add_systems(Startup, (setup, tileset, create_global_atlas))
+        .add_systems(Startup, (setup, create_global_atlas, tileset))
         .add_systems(Update, (update_transform, transform_animation))
         .add_systems(PostUpdate, (atlas_to_sprite, input))
         .run();
@@ -32,51 +31,12 @@ fn setup(mut commands: Commands) {
         Camera2d,
         OrthographicProjection {
             scaling_mode: bevy::render::camera::ScalingMode::FixedVertical {
-                viewport_height: f32::from(TILE_SIZE * (HEIGHT + 2)),
+                viewport_height: f32::from(TILE_SIZE * (HEIGHT + 2 + 2)),
             },
             ..OrthographicProjection::default_2d()
         },
     ));
     commands.spawn(Player);
-}
-
-#[derive(Component)]
-struct Tile;
-
-fn tileset(mut commands: Commands) {
-    let mut tiles: Vec<(AtlasSprite, GridTransform, Transform, Tile)> =
-        Vec::with_capacity((WIDTH * HEIGHT) as usize);
-    for x in 0..WIDTH {
-        for y in 0..HEIGHT {
-            tiles.push((
-                AtlasSprite::new(
-                    *[
-                        Texture::Blank,
-                        Texture::Blank,
-                        Texture::Blank,
-                        Texture::Blank,
-                        Texture::Brick,
-                        Texture::Brick,
-                        Texture::Brick,
-                        Texture::Flower,
-                        Texture::Grass,
-                        Texture::Soil,
-                        Texture::Soil,
-                    ]
-                    .choose(&mut thread_rng())
-                    .unwrap(),
-                ),
-                GridTransform::from_xy(
-                    i32::from(x) - i32::from(WIDTH) / 2,
-                    i32::from(y) - i32::from(HEIGHT) / 2 + 1,
-                ),
-                Transform::from_xyz(0.0, 0.0, -10.0),
-                Tile,
-            ));
-        }
-    }
-
-    commands.spawn_batch(tiles);
 }
 
 fn input(
