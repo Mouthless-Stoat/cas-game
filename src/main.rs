@@ -97,9 +97,9 @@ fn input(
             animation.old_transform = **transform;
             transform.translate(dir, 1);
             if matches!(dir, Direction::Left) {
-                sprite.flip_x = true;
+                sprite.flip_y = true;
             } else if matches!(dir, Direction::Right) {
-                sprite.flip_x = false;
+                sprite.flip_y = false;
             }
             animation.duration = Duration::from_millis(100);
             break;

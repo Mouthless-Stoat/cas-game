@@ -62,7 +62,7 @@ pub fn create_global_atlas(mut commands: Commands, asset_server: Res<AssetServer
         }
 
         for i in 0..5 {
-            let top_corner = UVec2::new(i * 6 + 1, 5);
+            let top_corner = UVec2::new(i * 6 + 1, 6);
             atlas_layout.add_texture(URect::from_corners(
                 top_corner,
                 top_corner + UVec2::new(4, 5),
@@ -99,7 +99,7 @@ pub fn atlas_to_sprite(atlas: Res<GlobalAtlas>, mut query: Query<(&mut Sprite, &
             sprite.texture_atlas = Some(t);
         }
 
-        sprite.flip_x = atlas_sprite.flip_x;
-        sprite.flip_y = atlas_sprite.flip_y;
+        sprite.flip_x = atlas_sprite.flip_y;
+        sprite.flip_y = atlas_sprite.flip_x;
     }
 }
