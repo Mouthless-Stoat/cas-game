@@ -26,8 +26,8 @@ pub enum Direction {
     /// Zero or no direction.
     Zero,
     Up,
-    Down,
     Left,
+    Down,
     Right,
 }
 
