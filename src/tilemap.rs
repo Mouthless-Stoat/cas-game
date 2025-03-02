@@ -30,6 +30,8 @@ pub enum TileType {
 }
 
 impl TileType {
+    /// Return if the tile is a [`TileType::Wall`]
+    #[must_use]
     pub fn is_wall(self) -> bool {
         matches!(self, TileType::Wall)
     }
