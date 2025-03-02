@@ -4,7 +4,7 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 use cas::prelude::*;
-use cas::tile_map::{tile_set, TileMap};
+use cas::tile_map::{render_tile_map, setup_tile_map, TileMap};
 
 fn main() {
     let default_plugin = DefaultPlugins
@@ -20,8 +20,9 @@ fn main() {
     App::new()
         .add_plugins(default_plugin)
         .insert_resource(ClearColor(Color::BLACK))
-        .add_systems(Startup, (setup, create_global_atlas, tile_set))
+        .add_systems(Startup, (setup, create_global_atlas, setup_tile_map))
         .add_systems(Update, (update_transform, transform_animation))
+        .add_systems(Update, render_tile_map)
         .add_systems(PostUpdate, (atlas_to_sprite, input))
         .run();
 }
@@ -41,7 +42,7 @@ fn setup(mut commands: Commands) {
 
 fn input(
     keyboard_input: Res<ButtonInput<KeyCode>>,
-    tile_map: Res<TileMap>,
+    mut tile_map: ResMut<TileMap>,
     mut transform: Single<&mut GridTransform, With<Player>>,
     mut animation: Single<&mut TransformAnimation, With<Player>>,
     mut sprite: Single<&mut AtlasSprite, With<Player>>,
@@ -72,6 +73,24 @@ fn input(
 
             animation.duration = Duration::from_millis(100);
             break;
+        }
+
+        if matches!(i, KeyCode::KeyP) {
+            tile_map.change_tile_map(
+                "
+                ...................
+                ...................
+                ...................
+                ...................
+                ........###........
+                ........###........
+                ........###........
+                ...................
+                ...................
+                ...................
+                ...................
+                ",
+            );
         }
     }
 

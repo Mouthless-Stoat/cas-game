@@ -37,10 +37,6 @@ impl TileType {
     }
 }
 
-/// Resource containing the global tile map.
-#[derive(Resource, Debug)]
-pub struct TileMap(pub [[TileType; WIDTH as usize]; HEIGHT as usize]);
-
 #[derive(Debug, Clone, Copy)]
 #[allow(clippy::struct_excessive_bools)] // This is necressary to detech surounding wall
 struct NeighbourTile {
@@ -54,6 +50,10 @@ struct NeighbourTile {
     bottom_left: bool,
     bottom_right: bool,
 }
+
+/// Resource containing the global tile map.
+#[derive(Resource, Debug)]
+pub struct TileMap(pub [[TileType; WIDTH as usize]; HEIGHT as usize]);
 
 impl TileMap {
     /// Get a tile at position. If an invalid position was given a wall tile will be return.
@@ -92,6 +92,11 @@ impl TileMap {
             bottom_right: self.get_wall_status(position, is_bottom && is_right, IVec2::ONE),
         }
     }
+
+    /// Method to change the current tile map using a given string.
+    pub fn change_tile_map(&mut self, tile_map: &str) {
+        self.0 = gen_tile_map(tile_map);
+    }
 }
 
 // Temporary function. TODO REPLACE WITH SOMETHING BETTER
@@ -99,11 +104,11 @@ impl TileMap {
 /// - `.` for ground tile.
 /// - `#` for wall tile.
 #[must_use]
-pub fn gen_tile_map(input: &str) -> TileMap {
-    let mut output: Vec<Vec<TileType>> = vec![vec![TileType::Wall; WIDTH as usize]];
+pub fn gen_tile_map(input: &str) -> [[TileType; WIDTH as usize]; HEIGHT as usize] {
+    let mut output: Vec<Vec<TileType>> = vec![vec![TileType::Ground; WIDTH as usize]];
 
     for l in input.split('\n') {
-        let mut curr = vec![TileType::Wall];
+        let mut curr = vec![TileType::Ground];
         for c in l.chars() {
             match c {
                 '#' => curr.push(TileType::Wall),
@@ -111,18 +116,18 @@ pub fn gen_tile_map(input: &str) -> TileMap {
                 _ => (),
             }
         }
-        curr.push(TileType::Wall);
+        curr.push(TileType::Ground);
         if curr.len() == WIDTH.into() {
             output.push(curr);
         }
     }
 
-    output.push(vec![TileType::Wall; WIDTH as usize]);
+    output.push(vec![TileType::Ground; WIDTH as usize]);
 
     let len = output.len();
 
     // Convert the vec into fixed size array
-    let tile_map = output
+    output
         .into_iter()
         .map(|row| {
             let len = row.len();
@@ -134,9 +139,7 @@ pub fn gen_tile_map(input: &str) -> TileMap {
         .try_into()
         .unwrap_or_else(|_| {
             panic!("Tile map have incorrect height, expected {HEIGHT}, but recieved {len}")
-        });
-
-    TileMap(tile_map)
+        })
 }
 
 /// Marker Component for a tile
@@ -147,23 +150,21 @@ pub struct Tile;
 #[derive(Component)]
 pub struct SubTile;
 
-/// Add all the tile map entity to render it.
-pub fn tile_set(mut commands: Commands) {
-    let tile_map = gen_tile_map(
-        "
-        ...................
-        ...................
-        ...................
-        ...................
-        ......#####........
-        ......#.###........
-        ........###........
-        ...................
-        ...................
-        ...................
-        ...................
-        ",
-    );
+/// Render all the tile map tile. This system only run when the tile map is changes.
+pub fn render_tile_map(
+    mut commands: Commands,
+    tile_map: Res<TileMap>,
+    tiles: Query<Entity, With<Tile>>,
+) {
+    if !tile_map.is_changed() {
+        return;
+    }
+
+    info!("Tile map changes rendering tile map");
+
+    for tile in tiles.iter() {
+        commands.entity(tile).despawn_recursive();
+    }
 
     let mut ground_tile: Vec<(AtlasSprite, GridTransform, Transform, Tile)> =
         Vec::with_capacity((WIDTH * HEIGHT) as usize);
@@ -217,5 +218,25 @@ pub fn tile_set(mut commands: Commands) {
 
     commands.spawn_batch(ground_tile);
 
-    commands.insert_resource(tile_map);
+    info!("Tile map finish rendering");
+}
+
+/// Insert the resource for the global [`TileMap`]
+pub fn setup_tile_map(mut commands: Commands) {
+    let tile_map = gen_tile_map(
+        "
+        ...................
+        ...................
+        ............#......
+        .........#..###....
+        ...##.#.##....#....
+        ...#########.......
+        ....###..#.........
+        .....##..#.........
+        .........##........
+        ...................
+        ...................
+        ",
+    );
+    commands.insert_resource(TileMap(tile_map));
 }
