@@ -66,7 +66,8 @@ fn input(
         }
     }
 
-    transform.translation = transform
-        .translation
-        .clamp(IVec2::ZERO, IVec2::new(i32::from(WIDTH), i32::from(HEIGHT)));
+    transform.translation = transform.translation.clamp(
+        IVec2::ZERO,
+        IVec2::new(i32::from(WIDTH - 1), i32::from(HEIGHT - 1)),
+    );
 }
