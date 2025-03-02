@@ -30,7 +30,7 @@ pub enum TileType {
 }
 
 impl TileType {
-    fn is_wall(self) -> bool {
+    pub fn is_wall(self) -> bool {
         matches!(self, TileType::Wall)
     }
 }
@@ -110,7 +110,6 @@ pub fn gen_tilemap(input: &str) -> TileMap {
             }
         }
         curr.push(TileType::Wall);
-        info!("{}", curr.len());
         if curr.len() == WIDTH.into() {
             output.push(curr);
         }
