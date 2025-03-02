@@ -196,23 +196,24 @@ pub fn render_tile_map(
                     Transform::from_xyz(0.0, 0.0, -10.0),
                     Tile,
                 ));
-                continue;
             }
 
-            let neighbour = tile_map.get_neighbour_wall(UVec2::new(
-                u32::try_from(x).unwrap(),
-                u32::try_from(y).unwrap(),
-            ));
+            if matches!(tile, TileType::Wall) {
+                let neighbour = tile_map.get_neighbour_wall(UVec2::new(
+                    u32::try_from(x).unwrap(),
+                    u32::try_from(y).unwrap(),
+                ));
 
-            commands
-                .spawn((Tile, position, Visibility::Inherited))
-                .with_children(|t| {
-                    t.spawn(WallPiece::new(true, true, neighbour));
-                    t.spawn(WallPiece::new(true, false, neighbour));
+                commands
+                    .spawn((Tile, position, Visibility::Inherited))
+                    .with_children(|t| {
+                        t.spawn(WallPiece::new(true, true, neighbour));
+                        t.spawn(WallPiece::new(true, false, neighbour));
 
-                    t.spawn(WallPiece::new(false, true, neighbour));
-                    t.spawn(WallPiece::new(false, false, neighbour));
-                });
+                        t.spawn(WallPiece::new(false, true, neighbour));
+                        t.spawn(WallPiece::new(false, false, neighbour));
+                    });
+            }
         }
     }
 
