@@ -4,7 +4,7 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 use cas::prelude::*;
-use cas::tilemap::tileset;
+use cas::tilemap::{tileset, TileMap};
 
 fn main() {
     let default_plugin = DefaultPlugins
@@ -41,6 +41,7 @@ fn setup(mut commands: Commands) {
 
 fn input(
     keyboard_input: Res<ButtonInput<KeyCode>>,
+    tile_map: Res<TileMap>,
     mut transform: Single<&mut GridTransform, With<Player>>,
     mut animation: Single<&mut TransformAnimation, With<Player>>,
     mut sprite: Single<&mut AtlasSprite, With<Player>>,
@@ -55,14 +56,16 @@ fn input(
         };
         if !dir.is_zero() && animation.duration.is_zero() {
             animation.old_transform = **transform;
-            transform.translate(dir, 1);
+
+            transform.translate_mut(dir, 1);
+
             if matches!(dir, Direction::Left) {
                 sprite.flip_y = true;
             } else if matches!(dir, Direction::Right) {
                 sprite.flip_y = false;
             }
+
             animation.duration = Duration::from_millis(100);
-            info!("{:?}", transform.as_vec3());
             break;
         }
     }

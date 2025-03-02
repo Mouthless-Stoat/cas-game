@@ -18,14 +18,35 @@ pub struct GridTransform {
 }
 
 impl GridTransform {
-    /// Translate in a direction by some amount.
-    pub fn translate(&mut self, dir: Direction, amount: i32) {
+    /// Translate in a direction by some amount in place.
+    pub fn translate_mut(&mut self, dir: Direction, amount: i32) {
         match dir {
             Direction::Zero => (),
-            Direction::Down => self.translation.y += amount,
-            Direction::Right => self.translation.x += amount,
             Direction::Up => self.translation.y -= amount,
             Direction::Left => self.translation.x -= amount,
+            Direction::Down => self.translation.y += amount,
+            Direction::Right => self.translation.x += amount,
+        }
+    }
+
+    /// Translate in a direction by some amount and return the new position. This does not change the current
+    /// translation of the transform.
+    ///
+    /// For the in place version see [`translate_mut`][GridTransform::translate_mut]
+    #[must_use = "Consider using `translate_mut` if you want to modify it in place"]
+    pub fn translate(&self, dir: Direction, amount: i32) -> GridTransform {
+        let mut translation = self.translation;
+        match dir {
+            Direction::Zero => (),
+            Direction::Up => translation -= IVec2::Y * amount,
+            Direction::Left => translation -= IVec2::X * amount,
+            Direction::Down => translation += IVec2::Y * amount,
+            Direction::Right => translation += IVec2::X * amount,
+        }
+
+        GridTransform {
+            translation,
+            ..*self
         }
     }
 
