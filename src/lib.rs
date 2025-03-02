@@ -15,9 +15,9 @@ pub mod tilemap;
 pub static TILE_SIZE: u16 = 8;
 
 /// Visible area width.
-pub static WIDTH: u16 = 19;
+pub static WIDTH: u16 = 21;
 /// Visible area height
-pub static HEIGHT: u16 = 11;
+pub static HEIGHT: u16 = 13;
 
 /// Enum for direction.
 #[allow(missing_docs)]

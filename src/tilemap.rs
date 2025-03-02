@@ -36,8 +36,8 @@ impl TileType {
 }
 
 /// Resource containing the global tile map.
-#[derive(Resource)]
-pub struct TileMap(pub Vec<Vec<TileType>>);
+#[derive(Resource, Debug)]
+pub struct TileMap(pub [[TileType; WIDTH as usize]; HEIGHT as usize]);
 
 #[derive(Debug, Clone, Copy)]
 #[allow(clippy::struct_excessive_bools)] // This is necressary to detech surounding wall
@@ -98,10 +98,10 @@ impl TileMap {
 /// - `#` for wall tile.
 #[must_use]
 pub fn gen_tilemap(input: &str) -> TileMap {
-    let mut output: Vec<Vec<TileType>> = Vec::new();
+    let mut output: Vec<Vec<TileType>> = vec![vec![TileType::Wall; WIDTH as usize]];
 
     for l in input.split('\n') {
-        let mut curr = vec![];
+        let mut curr = vec![TileType::Wall];
         for c in l.chars() {
             match c {
                 '#' => curr.push(TileType::Wall),
@@ -109,12 +109,32 @@ pub fn gen_tilemap(input: &str) -> TileMap {
                 _ => (),
             }
         }
-        if !curr.is_empty() {
+        curr.push(TileType::Wall);
+        info!("{}", curr.len());
+        if curr.len() == WIDTH.into() {
             output.push(curr);
         }
     }
 
-    TileMap(output)
+    output.push(vec![TileType::Wall; WIDTH as usize]);
+
+    let len = output.len();
+
+    let tilemap = output
+        .into_iter()
+        .map(|row| {
+            let len = row.len();
+            row.try_into().unwrap_or_else(|_| {
+                panic!("Tile map have incorrect width, expected {WIDTH}, but recieved {len}",)
+            })
+        })
+        .collect::<Vec<_>>()
+        .try_into()
+        .unwrap_or_else(|_| {
+            panic!("Tile map have incorrect height, expected {HEIGHT}, but recieved {len}")
+        });
+
+    TileMap(tilemap)
 }
 
 /// Marker Component for a tile
@@ -129,17 +149,17 @@ pub struct SubTile;
 pub fn tileset(mut commands: Commands) {
     let tilemap = gen_tilemap(
         "
-        .........###########
-        ....................
-        ....##..............
-        ....##.........##...
-        ..........#....##...
-        ..#......###....#...
-        ...#....#####...#...
-        .........###....##..
-        ....#.....#.....##..
-        ....##..............
-        .....#########......
+        ...................
+        ...................
+        ...................
+        ...................
+        ........###........
+        ........###........
+        ........###........
+        ...................
+        ...................
+        ...................
+        ...................
         ",
     );
 

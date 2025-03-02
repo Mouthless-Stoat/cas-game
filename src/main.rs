@@ -31,7 +31,7 @@ fn setup(mut commands: Commands) {
         Camera2d,
         OrthographicProjection {
             scaling_mode: bevy::render::camera::ScalingMode::FixedVertical {
-                viewport_height: f32::from(TILE_SIZE * (HEIGHT + 2 + 2)),
+                viewport_height: f32::from(TILE_SIZE * (HEIGHT + 2)),
             },
             ..OrthographicProjection::default_2d()
         },
@@ -62,6 +62,7 @@ fn input(
                 sprite.flip_y = false;
             }
             animation.duration = Duration::from_millis(100);
+            info!("{:?}", transform.as_vec3());
             break;
         }
     }
