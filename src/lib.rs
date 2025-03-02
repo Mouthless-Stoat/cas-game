@@ -9,7 +9,7 @@ pub mod animation;
 pub mod atlas;
 pub mod grid;
 pub mod player;
-pub mod tilemap;
+pub mod tile_map;
 
 /// Size of each tile.
 pub static TILE_SIZE: u16 = 8;

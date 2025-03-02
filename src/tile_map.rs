@@ -1,4 +1,4 @@
-//! Tilemap implementation.
+//! Tile map implementation.
 //!
 //! The engine hold a glocal resource [`TileMap`] that hold every tile as [`Vec<Vec<TileType>>`].
 //! Currently each tile can only be a ground or wall tile. Ground tile visual are also currently
@@ -99,7 +99,7 @@ impl TileMap {
 /// - `.` for ground tile.
 /// - `#` for wall tile.
 #[must_use]
-pub fn gen_tilemap(input: &str) -> TileMap {
+pub fn gen_tile_map(input: &str) -> TileMap {
     let mut output: Vec<Vec<TileType>> = vec![vec![TileType::Wall; WIDTH as usize]];
 
     for l in input.split('\n') {
@@ -122,7 +122,7 @@ pub fn gen_tilemap(input: &str) -> TileMap {
     let len = output.len();
 
     // Convert the vec into fixed size array
-    let tilemap = output
+    let tile_map = output
         .into_iter()
         .map(|row| {
             let len = row.len();
@@ -136,7 +136,7 @@ pub fn gen_tilemap(input: &str) -> TileMap {
             panic!("Tile map have incorrect height, expected {HEIGHT}, but recieved {len}")
         });
 
-    TileMap(tilemap)
+    TileMap(tile_map)
 }
 
 /// Marker Component for a tile
@@ -148,8 +148,8 @@ pub struct Tile;
 pub struct SubTile;
 
 /// Add all the tile map entity to render it.
-pub fn tileset(mut commands: Commands) {
-    let tilemap = gen_tilemap(
+pub fn tile_set(mut commands: Commands) {
+    let tile_map = gen_tile_map(
         "
         ...................
         ...................
@@ -168,7 +168,7 @@ pub fn tileset(mut commands: Commands) {
     let mut ground_tile: Vec<(AtlasSprite, GridTransform, Transform, Tile)> =
         Vec::with_capacity((WIDTH * HEIGHT) as usize);
 
-    for (y, row) in tilemap.0.iter().enumerate() {
+    for (y, row) in tile_map.0.iter().enumerate() {
         for (x, tile) in row.iter().enumerate() {
             let position =
                 GridTransform::from_xy(i32::try_from(x).unwrap(), i32::try_from(y).unwrap());
@@ -198,7 +198,7 @@ pub fn tileset(mut commands: Commands) {
                 continue;
             }
 
-            let neighbour = tilemap.get_neighbour_wall(UVec2::new(
+            let neighbour = tile_map.get_neighbour_wall(UVec2::new(
                 u32::try_from(x).unwrap(),
                 u32::try_from(y).unwrap(),
             ));
@@ -217,5 +217,5 @@ pub fn tileset(mut commands: Commands) {
 
     commands.spawn_batch(ground_tile);
 
-    commands.insert_resource(tilemap);
+    commands.insert_resource(tile_map);
 }

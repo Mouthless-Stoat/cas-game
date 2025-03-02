@@ -4,7 +4,7 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 use cas::prelude::*;
-use cas::tilemap::{tileset, TileMap};
+use cas::tile_map::{tile_set, TileMap};
 
 fn main() {
     let default_plugin = DefaultPlugins
@@ -20,7 +20,7 @@ fn main() {
     App::new()
         .add_plugins(default_plugin)
         .insert_resource(ClearColor(Color::BLACK))
-        .add_systems(Startup, (setup, create_global_atlas, tileset))
+        .add_systems(Startup, (setup, create_global_atlas, tile_set))
         .add_systems(Update, (update_transform, transform_animation))
         .add_systems(PostUpdate, (atlas_to_sprite, input))
         .run();
