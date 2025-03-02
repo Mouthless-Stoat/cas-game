@@ -18,9 +18,14 @@ pub fn create_global_atlas(mut commands: Commands, asset_server: Res<AssetServer
 
         // load the file
         let mut f = File::open(
-            [env!("CARGO_MANIFEST_DIR"), "assets", "atlas.png"]
-                .iter()
-                .collect::<PathBuf>(),
+            [
+                env!("CARGO_MANIFEST_DIR"),
+                "assets",
+                "textures",
+                "atlas.png",
+            ]
+            .iter()
+            .collect::<PathBuf>(),
         )
         .unwrap();
         f.seek(SeekFrom::Start(16)).unwrap(); // skip the first 16 bytes
@@ -38,7 +43,7 @@ pub fn create_global_atlas(mut commands: Commands, asset_server: Res<AssetServer
     let mut global_atlas = GlobalAtlas::new();
 
     let main_atlas = Atlas::new(
-        asset_server.load("atlas.png"),
+        asset_server.load("textures/atlas.png"),
         asset_server.add(TextureAtlasLayout::from_grid(
             UVec2::ONE * u32::from(TILE_SIZE),
             width / u32::from(TILE_SIZE + 2),
@@ -49,7 +54,7 @@ pub fn create_global_atlas(mut commands: Commands, asset_server: Res<AssetServer
     );
 
     let wall_atlas = {
-        let texture = asset_server.load("wall_atlas.png");
+        let texture = asset_server.load("textures/wall_atlas.png");
 
         let mut atlas_layout = TextureAtlasLayout::new_empty(UVec2::new(12, 30));
 
