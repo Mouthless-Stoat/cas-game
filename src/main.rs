@@ -57,7 +57,12 @@ fn input(
         if !dir.is_zero() && animation.duration.is_zero() {
             animation.old_transform = **transform;
 
-            transform.translate_mut(dir, 1);
+            if !tile_map
+                .get_tile(transform.translate(dir, 1).translation.try_into().unwrap())
+                .is_wall()
+            {
+                transform.translate_mut(dir, 1);
+            }
 
             if matches!(dir, Direction::Left) {
                 sprite.flip_y = true;
