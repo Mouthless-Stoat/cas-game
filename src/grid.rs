@@ -41,11 +41,11 @@ impl GridTransform {
     #[must_use]
     pub fn as_vec3(&self) -> Vec3 {
         let f32_tile = f32::from(TILE_SIZE);
-        let f32_width = f32::from(WIDTH);
-        let f32_height = f32::from(HEIGHT);
+        let i32_width = i32::from(WIDTH);
+        let i32_height = i32::from(HEIGHT);
 
-        let x = (self.translation.x as f32 - f32_width / 2.0) * f32_tile;
-        let y = (f32_height / 2.0 - self.translation.y as f32) * f32_tile;
+        let x = (self.translation.x - i32_width / 2) as f32 * f32_tile;
+        let y = (i32_height / 2 - self.translation.y) as f32 * f32_tile;
 
         Vec3::new(x, y, 0.0)
     }
