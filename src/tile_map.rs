@@ -105,10 +105,10 @@ impl TileMap {
 /// - `#` for wall tile.
 #[must_use]
 pub fn gen_tile_map(input: &str) -> [[TileType; WIDTH as usize]; HEIGHT as usize] {
-    let mut output: Vec<Vec<TileType>> = vec![vec![TileType::Ground; WIDTH as usize]];
+    let mut output: Vec<Vec<TileType>> = vec![vec![TileType::Wall; WIDTH as usize]];
 
     for l in input.split('\n') {
-        let mut curr = vec![TileType::Ground];
+        let mut curr = vec![TileType::Wall];
         for c in l.chars() {
             match c {
                 '#' => curr.push(TileType::Wall),
@@ -116,13 +116,13 @@ pub fn gen_tile_map(input: &str) -> [[TileType; WIDTH as usize]; HEIGHT as usize
                 _ => (),
             }
         }
-        curr.push(TileType::Ground);
+        curr.push(TileType::Wall);
         if curr.len() == WIDTH.into() {
             output.push(curr);
         }
     }
 
-    output.push(vec![TileType::Ground; WIDTH as usize]);
+    output.push(vec![TileType::Wall; WIDTH as usize]);
 
     let len = output.len();
 
