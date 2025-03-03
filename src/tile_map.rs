@@ -18,6 +18,9 @@ use crate::prelude::*;
 mod wall;
 use wall::WallPiece;
 
+mod asset;
+pub use asset::*;
+
 /// Enum holding type of tile that the tile map can display.
 #[derive(Clone, Copy, Debug)]
 pub enum TileType {

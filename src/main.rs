@@ -4,7 +4,7 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 use cas::prelude::*;
-use cas::tile_map::{render_tile_map, setup_tile_map, TileMap};
+use cas::tile_map::{render_tile_map, setup_tile_map, RoomAsset, TileMap};
 
 fn main() {
     let default_plugin = DefaultPlugins
@@ -20,6 +20,7 @@ fn main() {
     App::new()
         .add_plugins(default_plugin)
         .insert_resource(ClearColor(Color::BLACK))
+        .init_asset::<RoomAsset>()
         .add_systems(Startup, (setup, create_global_atlas, setup_tile_map))
         .add_systems(Update, (update_transform, transform_animation))
         .add_systems(Update, render_tile_map)

@@ -17,6 +17,7 @@ bool_to_int_with_if = "allow"
 
 [dependencies]
 rand = "0.8.5"
+thiserror = "2.0.11"
 
 [dependencies.bevy]
 version = "0.15.0"
