@@ -32,7 +32,7 @@ impl GridTransform {
     /// Translate in a direction by some amount and return the new position. This does not change the current
     /// translation of the transform.
     ///
-    /// For the in place version see [`translate_mut`][GridTransform::translate_mut]
+    /// For the in place version see [`translate_mut`](GridTransform::translate_mut)
     #[must_use = "Consider using `translate_mut` if you want to modify it in place"]
     pub fn translate(&self, dir: Direction, amount: i32) -> GridTransform {
         let mut translation = self.translation;
