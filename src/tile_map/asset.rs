@@ -12,13 +12,13 @@ use crate::{HEIGHT, WIDTH};
 use super::TileType;
 
 #[derive(Asset, TypePath)]
-pub struct Room(pub [[TileType; WIDTH as usize]; HEIGHT as usize]);
+pub struct RoomLayout(pub [[TileType; WIDTH as usize]; HEIGHT as usize]);
 
 struct RoomAssetLoader;
 
 #[non_exhaustive]
 #[derive(Debug, Error)]
-enum RoomAssetError {
+enum RoomLayoutError {
     #[error("Could not load room asset: {0}")]
     Io(#[from] std::io::Error),
     #[error("Invalid character in room asset: {0}")]
@@ -28,9 +28,9 @@ enum RoomAssetError {
 }
 
 impl AssetLoader for RoomAssetLoader {
-    type Asset = Room;
+    type Asset = RoomLayout;
     type Settings = ();
-    type Error = RoomAssetError;
+    type Error = RoomLayoutError;
 
     async fn load(
         &self,
@@ -42,7 +42,7 @@ impl AssetLoader for RoomAssetLoader {
         reader.read_to_end(&mut bytes).await?;
 
         if !bytes.is_ascii() {
-            return Err(RoomAssetError::Ascii(
+            return Err(RoomLayoutError::Ascii(
                 load_context.path().to_str().unwrap().to_string(),
             ));
         }
@@ -57,7 +57,7 @@ impl AssetLoader for RoomAssetLoader {
                 curr.push(match c {
                     '.' => TileType::Ground,
                     '#' => TileType::Wall,
-                    c => return Err(RoomAssetError::TileType(c)),
+                    c => return Err(RoomLayoutError::TileType(c)),
                 });
             }
             curr.push(TileType::Wall);
@@ -66,7 +66,7 @@ impl AssetLoader for RoomAssetLoader {
 
         let len = tile_map.len();
 
-        Ok(Room(
+        Ok(RoomLayout(
             tile_map
                 .into_iter()
                 .map(|row| {
