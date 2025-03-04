@@ -9,6 +9,7 @@
 //! tile, above and right for the top right sub tile, etc. The also consider the corner if all
 //! their adjacent tile are wall.
 
+use bevy::math::bool;
 use bevy::prelude::*;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
@@ -40,23 +41,11 @@ impl TileType {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
-#[allow(clippy::struct_excessive_bools)] // This is necressary to detech surounding wall
-struct NeighbourTile {
-    top: bool,
-    left: bool,
-    bottom: bool,
-    right: bool,
-
-    top_left: bool,
-    top_right: bool,
-    bottom_left: bool,
-    bottom_right: bool,
-}
-
 /// Resource containing the global tile map.
 #[derive(Resource, Debug)]
 pub struct TileMap(pub [[TileType; WIDTH as usize]; HEIGHT as usize]);
+
+type NeighbourTile = Compass<bool>;
 
 impl TileMap {
     /// Get a tile at position. If an invalid position was given a wall tile will be return.
@@ -83,16 +72,16 @@ impl TileMap {
         let is_bottom = position.y == HEIGHT.into();
         let is_right = position.x == WIDTH.into();
 
-        NeighbourTile {
-            top: self.get_wall_status(position, is_top, IVec2::NEG_Y),
-            left: self.get_wall_status(position, is_left, IVec2::NEG_X),
-            bottom: self.get_wall_status(position, is_bottom, IVec2::Y),
-            right: self.get_wall_status(position, is_right, IVec2::X),
+        Compass {
+            north: self.get_wall_status(position, is_top, IVec2::NEG_Y),
+            east: self.get_wall_status(position, is_right, IVec2::X),
+            south: self.get_wall_status(position, is_bottom, IVec2::Y),
+            west: self.get_wall_status(position, is_left, IVec2::NEG_X),
 
-            top_left: self.get_wall_status(position, is_top && is_left, IVec2::NEG_ONE),
-            top_right: self.get_wall_status(position, is_top && is_right, IVec2::NEG_Y + IVec2::X),
-            bottom_left: self.get_wall_status( position, is_bottom && is_left, IVec2::Y + IVec2::NEG_X,),
-            bottom_right: self.get_wall_status(position, is_bottom && is_right, IVec2::ONE),
+            north_east: self.get_wall_status(position, is_top && is_right, IVec2::NEG_Y + IVec2::X),
+            south_east: self.get_wall_status(position, is_bottom && is_right, IVec2::ONE),
+            south_west: self.get_wall_status( position, is_bottom && is_left, IVec2::Y + IVec2::NEG_X,),
+            north_west: self.get_wall_status(position, is_top && is_left, IVec2::NEG_ONE),
         }
     }
 

@@ -38,3 +38,18 @@ impl Direction {
         matches!(self, Direction::Zero)
     }
 }
+
+/// Compass type
+#[derive(Clone, Copy)]
+#[allow(missing_docs)]
+pub struct Compass<T> {
+    pub north: T,
+    pub east: T,
+    pub south: T,
+    pub west: T,
+
+    pub north_east: T,
+    pub south_east: T,
+    pub south_west: T,
+    pub north_west: T,
+}

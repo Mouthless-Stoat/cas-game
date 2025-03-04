@@ -14,14 +14,14 @@ pub struct WallPiece {
 impl WallPiece {
     #[rustfmt::skip]
     pub fn new(top: bool, left: bool, neighbour: NeighbourTile) -> WallPiece {
-        let vert_wall = if top { neighbour.top } else { neighbour.bottom };
-        let horz_wall = if left { neighbour.left } else { neighbour.right };
+        let vert_wall = if top { neighbour.north } else { neighbour.south };
+        let horz_wall = if left { neighbour.west } else { neighbour.east };
 
         let corner = match (top, left) {
-            (true, true) => neighbour.top_left,
-            (true, false) => neighbour.top_right,
-            (false, true) => neighbour.bottom_left,
-            (false, false) => neighbour.bottom_right,
+            (true, true) => neighbour.north_west,
+            (true, false) => neighbour.north_east,
+            (false, true) => neighbour.south_west,
+            (false, false) => neighbour.south_east,
         };
 
         let x = if left { -2.0 } else { 2.0 };
