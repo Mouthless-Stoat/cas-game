@@ -1,0 +1,42 @@
+[package]
+name = "game"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+engine = { path = "../engine" }
+rand = "0.8.5"
+thiserror = "2.0.11"
+
+[dependencies.bevy]
+version = "0.15.0"
+# Disable the default features if there are any that you do not want
+default-features = false
+
+features = [
+  "animation",
+  "bevy_asset",
+  "bevy_audio",
+  "bevy_color",
+  "bevy_core_pipeline",
+  "bevy_gizmos",
+  "bevy_picking",
+  "bevy_render",
+  "bevy_scene",
+  "bevy_sprite",
+  "bevy_sprite_picking_backend",
+  "bevy_state",
+  "bevy_text",
+  "bevy_ui",
+  "bevy_ui_picking_backend",
+  "bevy_window",
+  "bevy_winit",
+  "png",
+  "custom_cursor",
+  "default_font",
+  "multi_threaded",
+  "sysinfo_plugin",
+  "vorbis",
+  "webgl2",
+  "x11",
+]

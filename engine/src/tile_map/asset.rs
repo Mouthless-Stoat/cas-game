@@ -11,6 +11,7 @@ use crate::{HEIGHT, WIDTH};
 
 use super::TileType;
 
+/// Asset for a room layout to be load by the engine
 #[derive(Asset, TypePath)]
 pub struct RoomLayout(pub [[TileType; WIDTH as usize]; HEIGHT as usize]);
 

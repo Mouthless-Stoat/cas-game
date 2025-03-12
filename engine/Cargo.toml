@@ -1,0 +1,53 @@
+[package]
+name = "engine"
+version = "0.1.0"
+edition = "2021"
+
+[lints.rust]
+missing_docs = "warn"
+
+[lints.clippy]
+pedantic = { level = "warn", priority = -1 } # all the pedantic lint
+
+needless_pass_by_value = "allow" # bevy *really* like to to use own value like Res
+cast_precision_loss = "allow"    # most of these don't matter that often
+missing_panics_doc = "allow"     # shut up
+
+bool_to_int_with_if = "allow"
+
+[dependencies]
+rand = "0.8.5"
+thiserror = "2.0.11"
+
+[dependencies.bevy]
+version = "0.15.0"
+# Disable the default features if there are any that you do not want
+default-features = false
+
+features = [
+  "animation",
+  "bevy_asset",
+  "bevy_audio",
+  "bevy_color",
+  "bevy_core_pipeline",
+  "bevy_gizmos",
+  "bevy_picking",
+  "bevy_render",
+  "bevy_scene",
+  "bevy_sprite",
+  "bevy_sprite_picking_backend",
+  "bevy_state",
+  "bevy_text",
+  "bevy_ui",
+  "bevy_ui_picking_backend",
+  "bevy_window",
+  "bevy_winit",
+  "png",
+  "custom_cursor",
+  "default_font",
+  "multi_threaded",
+  "sysinfo_plugin",
+  "vorbis",
+  "webgl2",
+  "x11",
+]

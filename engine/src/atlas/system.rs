@@ -1,10 +1,9 @@
 use std::{
     fs::File,
     io::{Read, Seek, SeekFrom},
-    path::PathBuf,
 };
 
-use bevy::prelude::*;
+use bevy::{asset::io::file::FileAssetReader, prelude::*};
 
 use crate::TILE_SIZE;
 
@@ -17,17 +16,12 @@ pub fn create_global_atlas(mut commands: Commands, asset_server: Res<AssetServer
         // consult the png spec: here http://www.libpng.org/pub/png/spec/1.2/PNG-Structure.html
 
         // load the file
-        let mut f = File::open(
-            [
-                env!("CARGO_MANIFEST_DIR"),
-                "assets",
-                "textures",
-                "atlas.png",
-            ]
-            .iter()
-            .collect::<PathBuf>(),
-        )
-        .unwrap();
+        let mut path = FileAssetReader::get_base_path();
+        path.push("assets");
+        path.push("textures");
+        path.push("atlas.png");
+        info!(?path);
+        let mut f = File::open(path).unwrap();
         f.seek(SeekFrom::Start(16)).unwrap(); // skip the first 16 bytes
 
         let mut buf = [0; 8];
