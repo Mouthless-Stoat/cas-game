@@ -7,7 +7,7 @@ use bevy::{
 };
 use thiserror::Error;
 
-use crate::{HEIGHT, WIDTH};
+use crate::prelude::*;
 
 use super::TileType;
 

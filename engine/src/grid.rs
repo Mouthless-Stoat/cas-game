@@ -5,8 +5,7 @@
 
 use bevy::prelude::*;
 
-use crate::{animation::TransformAnimation, Direction, TILE_SIZE};
-use crate::{HEIGHT, WIDTH};
+use crate::prelude::*;
 
 /// Grid transform component to define a grid position. Interface with the [`Transform`] component.
 #[allow(missing_docs)]

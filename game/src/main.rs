@@ -4,7 +4,6 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 use engine::prelude::*;
-use engine::tile_map::{render_tile_map, setup_tile_map, RoomLayout, TileMap};
 
 fn main() {
     let default_plugin = DefaultPlugins

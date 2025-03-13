@@ -5,9 +5,7 @@ use std::{
 
 use bevy::{asset::io::file::FileAssetReader, prelude::*};
 
-use crate::TILE_SIZE;
-
-use super::{Atlas, AtlasSprite, GlobalAtlas, GlobalAtlasIndex, Texture};
+use crate::prelude::*;
 
 /// Create the global atlas resource
 pub fn create_global_atlas(mut commands: Commands, asset_server: Res<AssetServer>) {

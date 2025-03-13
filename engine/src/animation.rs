@@ -5,7 +5,7 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 
-use crate::grid::GridTransform;
+use crate::prelude::*;
 
 /// Animation for object transform. Easing between 2 transform value.
 #[derive(Component, Clone, Copy)]

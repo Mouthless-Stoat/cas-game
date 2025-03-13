@@ -45,7 +45,7 @@ impl Atlas {
 
 /// Use to index into the global atlas
 #[repr(usize)]
-enum GlobalAtlasIndex {
+pub enum GlobalAtlasIndex {
     Main = 0,
     Wall,
 }
