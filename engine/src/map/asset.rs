@@ -3,23 +3,25 @@
 
 use bevy::{
     asset::{io::Reader, Asset, AssetLoader, LoadContext},
+    math::{IVec2, UVec2},
     reflect::TypePath,
 };
 use thiserror::Error;
 
 use crate::prelude::*;
 
-use super::TileType;
+use super::{NeighbourTile, TileType};
 
 /// Asset for a room layout to be load by the engine
 #[derive(Asset, TypePath)]
 pub struct RoomLayout(pub [[TileType; WIDTH as usize]; HEIGHT as usize]);
 
-struct RoomAssetLoader;
+#[derive(Default)]
+pub struct RoomLayoutLoader;
 
 #[non_exhaustive]
 #[derive(Debug, Error)]
-enum RoomLayoutError {
+pub enum RoomLayoutError {
     #[error("Could not load room asset: {0}")]
     Io(#[from] std::io::Error),
     #[error("Invalid character in room asset: {0}")]
@@ -28,7 +30,7 @@ enum RoomLayoutError {
     TileType(char),
 }
 
-impl AssetLoader for RoomAssetLoader {
+impl AssetLoader for RoomLayoutLoader {
     type Asset = RoomLayout;
     type Settings = ();
     type Error = RoomLayoutError;
@@ -65,6 +67,8 @@ impl AssetLoader for RoomAssetLoader {
             tile_map.push(curr);
         }
 
+        tile_map.push(vec![TileType::Wall; WIDTH as usize]);
+
         let len = tile_map.len();
 
         Ok(RoomLayout(
@@ -88,5 +92,46 @@ impl AssetLoader for RoomAssetLoader {
 
     fn extensions(&self) -> &[&str] {
         &["room"]
+    }
+}
+
+impl RoomLayout {
+    /// Get a tile at position. If an invalid position was given a wall tile will be return.
+    #[must_use]
+    pub fn get_tile(&self, position: UVec2) -> TileType {
+        *self
+            .0
+            .get(position.y as usize)
+            .and_then(|v| v.get(position.x as usize))
+            .unwrap_or(&TileType::Wall)
+    }
+
+    fn get_wall_status(&self, position: UVec2, shortcut: bool, offset: IVec2) -> bool {
+        shortcut
+            .then_some(TileType::Wall)
+            .unwrap_or_else(|| self.get_tile((position.as_ivec2() + offset).as_uvec2()))
+            .is_wall()
+    }
+
+    /// Get neighbouring wall tile.
+    #[must_use]
+    #[rustfmt::skip] // the formatting making it a bit worst imo
+    pub fn get_neighbour_wall(&self, position: UVec2) -> NeighbourTile {
+        let is_top = position.y == 0;
+        let is_left = position.x == 0;
+        let is_bottom = position.y == HEIGHT.into();
+        let is_right = position.x == WIDTH.into();
+
+        Compass {
+            north: self.get_wall_status(position, is_top, IVec2::NEG_Y),
+            east: self.get_wall_status(position, is_right, IVec2::X),
+            south: self.get_wall_status(position, is_bottom, IVec2::Y),
+            west: self.get_wall_status(position, is_left, IVec2::NEG_X),
+
+            north_east: self.get_wall_status(position, is_top && is_right, IVec2::NEG_Y + IVec2::X),
+            south_east: self.get_wall_status(position, is_bottom && is_right, IVec2::ONE),
+            south_west: self.get_wall_status( position, is_bottom && is_left, IVec2::Y + IVec2::NEG_X,),
+            north_west: self.get_wall_status(position, is_top && is_left, IVec2::NEG_ONE),
+        }
     }
 }

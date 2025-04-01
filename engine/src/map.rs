@@ -41,98 +41,7 @@ impl TileType {
     }
 }
 
-/// Resource containing the global tile map.
-#[derive(Resource, Debug)]
-pub struct TileMap(pub [[TileType; WIDTH as usize]; HEIGHT as usize]);
-
 type NeighbourTile = Compass<bool>;
-
-impl TileMap {
-    /// Get a tile at position. If an invalid position was given a wall tile will be return.
-    #[must_use]
-    pub fn get_tile(&self, position: UVec2) -> TileType {
-        *self
-            .0
-            .get(position.y as usize)
-            .and_then(|v| v.get(position.x as usize))
-            .unwrap_or(&TileType::Wall)
-    }
-
-    fn get_wall_status(&self, position: UVec2, shortcut: bool, offset: IVec2) -> bool {
-        shortcut
-            .then_some(TileType::Wall)
-            .unwrap_or_else(|| self.get_tile((position.as_ivec2() + offset).as_uvec2()))
-            .is_wall()
-    }
-
-    #[rustfmt::skip] // the formatting making it a bit worst imo
-    fn get_neighbour_wall(&self, position: UVec2) -> NeighbourTile {
-        let is_top = position.y == 0;
-        let is_left = position.x == 0;
-        let is_bottom = position.y == HEIGHT.into();
-        let is_right = position.x == WIDTH.into();
-
-        Compass {
-            north: self.get_wall_status(position, is_top, IVec2::NEG_Y),
-            east: self.get_wall_status(position, is_right, IVec2::X),
-            south: self.get_wall_status(position, is_bottom, IVec2::Y),
-            west: self.get_wall_status(position, is_left, IVec2::NEG_X),
-
-            north_east: self.get_wall_status(position, is_top && is_right, IVec2::NEG_Y + IVec2::X),
-            south_east: self.get_wall_status(position, is_bottom && is_right, IVec2::ONE),
-            south_west: self.get_wall_status( position, is_bottom && is_left, IVec2::Y + IVec2::NEG_X,),
-            north_west: self.get_wall_status(position, is_top && is_left, IVec2::NEG_ONE),
-        }
-    }
-
-    /// Method to change the current tile map using a given string.
-    pub fn change_tile_map(&mut self, tile_map: &str) {
-        self.0 = gen_tile_map(tile_map);
-    }
-}
-
-// Temporary function. TODO REPLACE WITH SOMETHING BETTER
-/// Generate a [`TileMap`] using a given string. Currenty the string format is:
-/// - `.` for ground tile.
-/// - `#` for wall tile.
-#[must_use]
-pub fn gen_tile_map(input: &str) -> [[TileType; WIDTH as usize]; HEIGHT as usize] {
-    let mut output: Vec<Vec<TileType>> = vec![vec![TileType::Wall; WIDTH as usize]];
-
-    for l in input.split('\n') {
-        let mut curr = vec![TileType::Wall];
-        for c in l.chars() {
-            match c {
-                '#' => curr.push(TileType::Wall),
-                '.' => curr.push(TileType::Ground),
-                _ => (),
-            }
-        }
-        curr.push(TileType::Wall);
-        if curr.len() == WIDTH.into() {
-            output.push(curr);
-        }
-    }
-
-    output.push(vec![TileType::Wall; WIDTH as usize]);
-
-    let len = output.len();
-
-    // Convert the vec into fixed size array
-    output
-        .into_iter()
-        .map(|row| {
-            let len = row.len();
-            row.try_into().unwrap_or_else(|_| {
-                panic!("Tile map have incorrect width, expected {WIDTH}, but recieved {len}",)
-            })
-        })
-        .collect::<Vec<_>>()
-        .try_into()
-        .unwrap_or_else(|_| {
-            panic!("Tile map have incorrect height, expected {HEIGHT}, but recieved {len}")
-        })
-}
 
 /// Marker Component for a tile
 #[derive(Component)]
@@ -142,13 +51,17 @@ pub struct Tile;
 #[derive(Component)]
 pub struct SubTile;
 
+#[derive(Resource)]
+pub struct Map(pub Handle<RoomLayout>);
+
 /// Render all the tile map tile. This system only run when the tile map is changes.
 pub fn render_tile_map(
     mut commands: Commands,
-    tile_map: Res<TileMap>,
+    room_layouts: Res<Assets<RoomLayout>>,
+    world: Res<Map>,
     tiles: Query<Entity, With<Tile>>,
 ) {
-    if !tile_map.is_changed() {
+    if !world.is_changed() {
         return;
     }
 
@@ -160,6 +73,10 @@ pub fn render_tile_map(
 
     let mut ground_tile: Vec<(AtlasSprite, GridTransform, Transform, Tile)> =
         Vec::with_capacity((WIDTH * HEIGHT) as usize);
+
+    let Some(tile_map) = room_layouts.get(&world.0) else {
+        return;
+    };
 
     for (y, row) in tile_map.0.iter().enumerate() {
         for (x, tile) in row.iter().enumerate() {
@@ -215,21 +132,7 @@ pub fn render_tile_map(
 }
 
 /// Insert the resource for the global [`TileMap`]
-pub fn setup_tile_map(mut commands: Commands) {
-    let tile_map = gen_tile_map(
-        "
-        ...................
-        ...................
-        ............#......
-        .........#..###....
-        ...##.#.##....#....
-        ...#########.......
-        ....###..#.........
-        .....##..#.........
-        .........##........
-        ...................
-        ...................
-        ",
-    );
-    commands.insert_resource(TileMap(tile_map));
+pub fn setup_tile_map(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let tile_map = asset_server.load("rooms/test.room");
+    commands.insert_resource(Map(tile_map));
 }

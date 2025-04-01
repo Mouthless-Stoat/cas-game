@@ -20,6 +20,7 @@ fn main() {
         .add_plugins(default_plugin)
         .insert_resource(ClearColor(Color::BLACK))
         .init_asset::<RoomLayout>()
+        .init_asset_loader::<RoomLayoutLoader>()
         .add_systems(Startup, (setup, create_global_atlas, setup_tile_map))
         .add_systems(Update, (update_transform, transform_animation))
         .add_systems(Update, render_tile_map)
@@ -42,7 +43,8 @@ fn setup(mut commands: Commands) {
 
 fn input(
     keyboard_input: Res<ButtonInput<KeyCode>>,
-    mut tile_map: ResMut<TileMap>,
+    world: Res<Map>,
+    tiles_map: Res<Assets<RoomLayout>>,
     mut transform: Single<&mut GridTransform, With<Player>>,
     mut animation: Single<&mut TransformAnimation, With<Player>>,
     mut sprite: Single<&mut AtlasSprite, With<Player>>,
@@ -62,6 +64,10 @@ fn input(
                 return;
             };
 
+            let Some(tile_map) = tiles_map.get(&world.0) else {
+                return;
+            };
+
             if !tile_map.get_tile(headed_position).is_wall() {
                 transform.translate_mut(dir, 1);
             }
@@ -74,24 +80,6 @@ fn input(
 
             animation.duration = Duration::from_millis(100);
             break;
-        }
-
-        if matches!(i, KeyCode::KeyP) {
-            tile_map.change_tile_map(
-                "
-                ...................
-                ...................
-                ...................
-                ...................
-                ........###........
-                ........###........
-                ........###........
-                ...................
-                ...................
-                ...................
-                ...................
-                ",
-            );
         }
     }
 
