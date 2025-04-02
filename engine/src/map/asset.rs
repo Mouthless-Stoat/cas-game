@@ -16,10 +16,12 @@ use super::{NeighbourTile, TileType};
 #[derive(Asset, TypePath)]
 pub struct RoomLayout(pub [[TileType; WIDTH as usize]; HEIGHT as usize]);
 
+/// Loader for [`RoomLayout`] asset
 #[derive(Default)]
 pub struct RoomLayoutLoader;
 
 #[non_exhaustive]
+#[allow(missing_docs)]
 #[derive(Debug, Error)]
 pub enum RoomLayoutError {
     #[error("Could not load room asset: {0}")]

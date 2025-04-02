@@ -1,8 +1,7 @@
-//! Tile map implementation.
+//! Map implementation.
 //!
-//! The engine hold a glocal resource [`TileMap`] that hold every tile as [`Vec<Vec<TileType>>`].
-//! Currently each tile can only be a ground or wall tile. Ground tile visual are also currently
-//! picked from a weighted random.
+//! The engine hold a glocal resource [`Map`] that hold the current loaded room as
+//! Currently each tile can only be a ground or wall tile.
 //!
 //! Wall tile are created using 4 sub wall tile, 2 for the top half and 2 for the bottom half. Each
 //! sub tile get choosen by considering the 2 adjacent tile to it, above and left for the top left sub
@@ -43,14 +42,15 @@ impl TileType {
 
 type NeighbourTile = Compass<bool>;
 
-/// Marker Component for a tile
+/// Marker Component for a tile.
 #[derive(Component)]
 pub struct Tile;
 
-/// Marker component for a sub tile
+/// Marker component for a sub tile.
 #[derive(Component)]
 pub struct SubTile;
 
+/// Resource holding the Global map and current loaded room.
 #[derive(Resource)]
 pub struct Map(pub Handle<RoomLayout>);
 
