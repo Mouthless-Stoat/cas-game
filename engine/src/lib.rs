@@ -42,7 +42,7 @@ impl Direction {
 /// Compass type
 #[derive(Clone, Copy)]
 #[allow(missing_docs)]
-pub struct Compass<T> {
+pub struct OctCompass<T> {
     pub north: T,
     pub east: T,
     pub south: T,
@@ -52,4 +52,57 @@ pub struct Compass<T> {
     pub south_east: T,
     pub south_west: T,
     pub north_west: T,
+}
+
+#[derive(Clone, Copy)]
+#[allow(missing_docs)]
+pub struct QuadCompass<T> {
+    pub north: T,
+    pub east: T,
+    pub south: T,
+    pub west: T,
+}
+
+impl<T> From<OctCompass<T>> for QuadCompass<T> {
+    fn from(
+        OctCompass {
+            north,
+            east,
+            south,
+            west,
+            ..
+        }: OctCompass<T>,
+    ) -> Self {
+        QuadCompass {
+            north,
+            east,
+            south,
+            west,
+        }
+    }
+}
+
+impl<T> From<QuadCompass<T>> for OctCompass<T>
+where
+    T: Default,
+{
+    fn from(
+        QuadCompass {
+            north,
+            east,
+            south,
+            west,
+        }: QuadCompass<T>,
+    ) -> Self {
+        OctCompass {
+            north,
+            east,
+            south,
+            west,
+            north_east: T::default(),
+            south_east: T::default(),
+            south_west: T::default(),
+            north_west: T::default(),
+        }
+    }
 }

@@ -40,7 +40,7 @@ impl TileType {
     }
 }
 
-type NeighbourTile = Compass<bool>;
+type NeighbourTile = OctCompass<bool>;
 
 /// Marker Component for a tile.
 #[derive(Component)]

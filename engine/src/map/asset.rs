@@ -124,7 +124,7 @@ impl RoomLayout {
         let is_bottom = position.y == HEIGHT.into();
         let is_right = position.x == WIDTH.into();
 
-        Compass {
+        OctCompass {
             north: self.get_wall_status(position, is_top, IVec2::NEG_Y),
             east: self.get_wall_status(position, is_right, IVec2::X),
             south: self.get_wall_status(position, is_bottom, IVec2::Y),
