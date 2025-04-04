@@ -65,7 +65,7 @@ pub fn render_tile_map(
         return;
     }
 
-    info!("Tile map changes rendering tile map");
+    info!("Room changes rendering new room");
 
     for tile in tiles.iter() {
         commands.entity(tile).despawn_recursive();
@@ -131,7 +131,7 @@ pub fn render_tile_map(
     info!("Tile map finish rendering");
 }
 
-/// Insert the resource for the global [`TileMap`]
+/// Insert the resource for the global [`Map`]
 pub fn setup_tile_map(mut commands: Commands, asset_server: Res<AssetServer>) {
     let tile_map = asset_server.load("rooms/test.room");
     commands.insert_resource(Map(tile_map));

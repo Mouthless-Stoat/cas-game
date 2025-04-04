@@ -18,7 +18,7 @@ pub fn create_global_atlas(mut commands: Commands, asset_server: Res<AssetServer
         path.push("assets");
         path.push("textures");
         path.push("atlas.png");
-        info!(?path);
+
         let mut f = File::open(path).unwrap();
         f.seek(SeekFrom::Start(16)).unwrap(); // skip the first 16 bytes
 
