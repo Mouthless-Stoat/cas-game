@@ -6,29 +6,37 @@ use crate::prelude::*;
 
 use super::wall::WallPiece;
 
+/// Generator object use to generate the map
 #[derive(Component)]
 #[require(GridTransform)]
 pub struct Generator(pub u8);
 
+/// Small resource holding the visited position in the map to not overlap room.
 #[derive(Resource)]
 pub struct Visited(pub Vec<GridTransform>);
 
+/// Generate the map.
+///
+/// Map generation start with a central generator entity. This entity generate a single room them
+/// create copy of itself in every direction with a door with one less depth. This is repeated
+/// until the generator depth reach 0.
 pub fn generate_map(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     room_layouts: Res<Assets<RoomLayout>>,
-    mut visted: ResMut<Visited>,
+    mut visited: ResMut<Visited>,
     generators: Query<(Entity, &Generator, &GridTransform)>,
 ) {
     if generators.is_empty() {
-        return;
+        // finally done with generation clear the vistied list
+        visited.0.clear();
     }
 
     for (entity, gen, trans) in &generators {
         if gen.0 == 0 {
             continue;
         }
-        visted.0.push(*trans);
+        visited.0.push(*trans);
 
         let mut ground_tile: Vec<(AtlasSprite, GridTransform, Transform, Tile)> =
             Vec::with_capacity((WIDTH * HEIGHT) as usize);
@@ -117,7 +125,7 @@ pub fn generate_map(
         }
 
         for t in vec {
-            if visted.0.contains(&t) {
+            if visited.0.contains(&t) {
                 continue;
             }
 

@@ -3,8 +3,6 @@
 //! Library for the game.
 //! Contain implementation for various engine functions and components.
 
-use bevy::ecs::component::Component;
-
 pub mod prelude;
 
 pub mod animation;

@@ -12,10 +12,12 @@ use crate::prelude::*;
 
 use super::{NeighbourTile, TileType};
 
-/// Asset for a room layout to be load by the engine
+/// Asset for a room layout to be load by the engine.
 #[derive(Asset, TypePath)]
 pub struct RoomLayout {
+    /// Rooms for this room layout.
     pub doors: QuadCompass<bool>,
+    /// Layout of the room.
     pub layout: [[TileType; WIDTH as usize]; HEIGHT as usize],
 }
 

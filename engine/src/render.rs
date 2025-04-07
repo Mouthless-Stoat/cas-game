@@ -2,7 +2,6 @@
 
 use bevy::prelude::*;
 
-use crate::atlas::AtlasSprite;
 use crate::grid::GridTransform;
 use crate::{HEIGHT, WIDTH};
 
