@@ -11,6 +11,7 @@ pedantic = { level = "warn", priority = -1 } # all the pedantic lint
 
 needless_pass_by_value = "allow" # bevy *really* like to to use own value like Res
 cast_precision_loss = "allow"    # most of these don't matter that often
+cast_lossless = "allow"
 missing_panics_doc = "allow"     # shut up
 
 bool_to_int_with_if = "allow"
