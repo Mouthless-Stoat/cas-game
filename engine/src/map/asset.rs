@@ -22,7 +22,7 @@ pub enum TileType {
     /// - 30%: Soil, Flower or Grass.
     Ground,
     /// Door tile.
-    Door,
+    Door(CompassDir),
 }
 
 impl TileType {
@@ -117,16 +117,16 @@ impl AssetLoader for RoomLayoutLoader {
         let vert_mid = ((HEIGHT - 1) / 2) as usize;
 
         if doors.north {
-            tile_map[0][horz_mid] = TileType::Door;
+            tile_map[0][horz_mid] = TileType::Door(CompassDir::North);
         }
         if doors.east {
-            tile_map[vert_mid][(WIDTH - 1) as usize] = TileType::Door;
+            tile_map[vert_mid][(WIDTH - 1) as usize] = TileType::Door(CompassDir::East);
         }
         if doors.south {
-            tile_map[(HEIGHT - 1) as usize][horz_mid] = TileType::Door;
+            tile_map[(HEIGHT - 1) as usize][horz_mid] = TileType::Door(CompassDir::South);
         }
         if doors.west {
-            tile_map[vert_mid][0] = TileType::Door;
+            tile_map[vert_mid][0] = TileType::Door(CompassDir::West);
         }
 
         let len = tile_map.len();
@@ -172,7 +172,7 @@ impl RoomLayout {
             shortcut
                 .then_some(TileType::Wall)
                 .unwrap_or_else(|| self.get_tile((position.as_ivec2() + offset).as_uvec2())),
-            TileType::Wall | TileType::Door
+            TileType::Wall | TileType::Door(_)
         )
     }
 

@@ -20,6 +20,7 @@ pub struct Visited(pub Vec<GridTransform>);
 /// Map generation start with a central generator entity. This entity generate a single room them
 /// create copy of itself in every direction with a door with one less depth. This is repeated
 /// until the generator depth reach 0.
+#[allow(clippy::too_many_lines)]
 pub fn generate_map(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
@@ -32,6 +33,7 @@ pub fn generate_map(
         visited.0.clear();
     }
 
+    // process every generator
     for (entity, gen, trans) in &generators {
         if gen.0 == 0 {
             continue;
@@ -92,9 +94,16 @@ pub fn generate_map(
                                 t.spawn(WallPiece::new(false, false, neighbour));
                             });
                     }
-                    TileType::Door => {
+                    TileType::Door(dir) => {
+                        let texture = match dir {
+                            CompassDir::North => Texture::DoorN,
+                            CompassDir::East => Texture::DoorE,
+                            CompassDir::South => Texture::DoorS,
+                            CompassDir::West => Texture::DoorW,
+                            _ => unreachable!(),
+                        };
                         commands.spawn((
-                            AtlasSprite::new(Texture::DoorN),
+                            AtlasSprite::new(texture),
                             position,
                             Transform::from_xyz(0.0, 0.0, -10.0),
                         ));
@@ -105,7 +114,10 @@ pub fn generate_map(
 
         commands.spawn_batch(ground_tile);
 
+        // despawn this geneerator
         commands.entity(entity).despawn();
+
+        // spawn new child to continue generating
         let mut vec = vec![];
         if room.doors.north {
             vec.push(GridTransform::from_xy(
