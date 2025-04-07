@@ -107,3 +107,17 @@ where
         }
     }
 }
+
+/// Enum containing the directions of the compass.
+#[allow(missing_docs)]
+#[derive(Debug, Clone, Copy)]
+pub enum CompassDir {
+    North,
+    East,
+    South,
+    West,
+    NorthEast,
+    SouthEast,
+    SouthWest,
+    NorthWest,
+}
