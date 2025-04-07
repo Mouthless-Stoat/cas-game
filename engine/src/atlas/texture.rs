@@ -16,6 +16,11 @@ pub enum Texture {
     Grass2,
     Flower2,
 
+    DoorN,
+    DoorE,
+    DoorS,
+    DoorW,
+
     Wall {
         /// Is this the top wall piece
         top: bool,
