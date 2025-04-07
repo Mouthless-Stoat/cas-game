@@ -38,7 +38,7 @@ pub fn generate_map(
         }
         visited.0.push(*trans);
 
-        let mut ground_tile: Vec<(AtlasSprite, GridTransform, Transform, Tile)> =
+        let mut ground_tile: Vec<(AtlasSprite, GridTransform, Transform)> =
             Vec::with_capacity((WIDTH * HEIGHT) as usize);
 
         let Some(room) = room_layouts.get(&asset_server.load("rooms/test.room")) else {
@@ -52,45 +52,53 @@ pub fn generate_map(
 
                 let position = GridTransform::from_xy(x, y);
 
-                if matches!(tile, TileType::Ground) {
-                    ground_tile.push((
-                        AtlasSprite::new(
-                            *[
-                                Texture::Blank,
-                                Texture::Blank,
-                                Texture::Blank,
-                                Texture::Blank,
-                                Texture::Blank,
-                                Texture::Blank,
-                                Texture::Blank,
-                                Texture::Soil,
-                                Texture::Flower,
-                                Texture::Grass,
-                            ]
-                            .choose(&mut thread_rng())
-                            .unwrap(),
-                        ),
-                        position,
-                        Transform::from_xyz(0.0, 0.0, -10.0),
-                        Tile,
-                    ));
-                }
+                match tile {
+                    TileType::Ground => {
+                        ground_tile.push((
+                            AtlasSprite::new(
+                                *[
+                                    Texture::Blank,
+                                    Texture::Blank,
+                                    Texture::Blank,
+                                    Texture::Blank,
+                                    Texture::Blank,
+                                    Texture::Blank,
+                                    Texture::Blank,
+                                    Texture::Soil,
+                                    Texture::Flower,
+                                    Texture::Grass,
+                                ]
+                                .choose(&mut thread_rng())
+                                .unwrap(),
+                            ),
+                            position,
+                            Transform::from_xyz(0.0, 0.0, -10.0),
+                        ));
+                    }
 
-                if matches!(tile, TileType::Wall) {
-                    let neighbour = room.get_neighbour_wall(UVec2::new(
-                        u32::try_from(x_og).unwrap(),
-                        u32::try_from(y_og).unwrap(),
-                    ));
+                    TileType::Wall => {
+                        let neighbour = room.get_neighbour_wall(UVec2::new(
+                            u32::try_from(x_og).unwrap(),
+                            u32::try_from(y_og).unwrap(),
+                        ));
 
-                    commands
-                        .spawn((Tile, position, Visibility::Inherited))
-                        .with_children(|t| {
-                            t.spawn(WallPiece::new(true, true, neighbour));
-                            t.spawn(WallPiece::new(true, false, neighbour));
+                        commands
+                            .spawn((position, Visibility::Inherited))
+                            .with_children(|t| {
+                                t.spawn(WallPiece::new(true, true, neighbour));
+                                t.spawn(WallPiece::new(true, false, neighbour));
 
-                            t.spawn(WallPiece::new(false, true, neighbour));
-                            t.spawn(WallPiece::new(false, false, neighbour));
-                        });
+                                t.spawn(WallPiece::new(false, true, neighbour));
+                                t.spawn(WallPiece::new(false, false, neighbour));
+                            });
+                    }
+                    TileType::Door => {
+                        commands.spawn((
+                            AtlasSprite::new(Texture::DoorN),
+                            position,
+                            Transform::from_xyz(0.0, 0.0, -10.0),
+                        ));
+                    }
                 }
             }
         }
