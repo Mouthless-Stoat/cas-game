@@ -34,7 +34,7 @@ impl TileType {
 }
 
 /// Asset for a room layout to be load by the engine.
-#[derive(Asset, TypePath)]
+#[derive(Asset, TypePath, Clone, Copy)]
 pub struct RoomLayout {
     /// Rooms for this room layout.
     pub doors: QuadCompass<bool>,

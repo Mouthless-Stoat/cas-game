@@ -10,6 +10,7 @@
 
 use bevy::math::bool;
 use bevy::prelude::*;
+use bevy::utils::hashbrown::HashMap;
 
 use crate::prelude::*;
 
@@ -29,10 +30,18 @@ pub struct SubTile;
 
 /// Resource holding the Global map and current loaded room.
 #[derive(Resource)]
-pub struct Map(pub Handle<RoomLayout>);
+pub struct Map {
+    /// Current room to interact with
+    pub curr_room: Handle<RoomLayout>,
+    /// Hashmap of room in the map.
+    pub rooms: HashMap<(i32, i32), RoomLayout>,
+}
 
 /// Insert the resource for the global [`Map`]
 pub fn setup_tile_map(mut commands: Commands, asset_server: Res<AssetServer>) {
     let tile_map = asset_server.load("rooms/test.room");
-    commands.insert_resource(Map(tile_map));
+    commands.insert_resource(Map {
+        curr_room: tile_map,
+        rooms: HashMap::new(),
+    });
 }

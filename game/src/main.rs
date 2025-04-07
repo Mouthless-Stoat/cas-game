@@ -42,7 +42,6 @@ fn setup(mut commands: Commands) {
     ));
     commands.spawn(Player);
     commands.spawn(Generator(4));
-    commands.insert_resource(Visited(vec![]));
 }
 
 fn input(
@@ -68,7 +67,7 @@ fn input(
                 return;
             };
 
-            let Some(tile_map) = tiles_map.get(&world.0) else {
+            let Some(tile_map) = tiles_map.get(&world.curr_room) else {
                 return;
             };
 

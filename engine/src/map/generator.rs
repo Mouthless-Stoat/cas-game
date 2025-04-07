@@ -11,10 +11,6 @@ use super::wall::WallPiece;
 #[require(GridTransform)]
 pub struct Generator(pub u8);
 
-/// Small resource holding the visited position in the map to not overlap room.
-#[derive(Resource)]
-pub struct Visited(pub Vec<GridTransform>);
-
 /// Generate the map.
 ///
 /// Map generation start with a central generator entity. This entity generate a single room them
@@ -23,22 +19,16 @@ pub struct Visited(pub Vec<GridTransform>);
 #[allow(clippy::too_many_lines)]
 pub fn generate_map(
     mut commands: Commands,
+    mut map: ResMut<Map>,
     asset_server: Res<AssetServer>,
     room_layouts: Res<Assets<RoomLayout>>,
-    mut visited: ResMut<Visited>,
     generators: Query<(Entity, &Generator, &GridTransform)>,
 ) {
-    if generators.is_empty() {
-        // finally done with generation clear the vistied list
-        visited.0.clear();
-    }
-
     // process every generator
     for (entity, gen, trans) in &generators {
         if gen.0 == 0 {
             continue;
         }
-        visited.0.push(*trans);
 
         let mut ground_tile: Vec<(AtlasSprite, GridTransform, Transform)> =
             Vec::with_capacity((WIDTH * HEIGHT) as usize);
@@ -46,6 +36,14 @@ pub fn generate_map(
         let Some(room) = room_layouts.get(&asset_server.load("rooms/test.room")) else {
             return;
         };
+
+        map.rooms.insert(
+            (
+                trans.translation.x / WIDTH as i32,
+                trans.translation.y / HEIGHT as i32,
+            ),
+            *room,
+        );
 
         for (row, y_og) in room.layout.iter().zip(0i32..) {
             for (tile, x_og) in row.iter().zip(0i32..) {
@@ -145,7 +143,7 @@ pub fn generate_map(
         }
 
         for t in vec {
-            if visited.0.contains(&t) {
+            if map.rooms.contains_key(&(t.translation.x, t.translation.y)) {
                 continue;
             }
 
