@@ -8,18 +8,12 @@
 //! tile, above and right for the top right sub tile, etc. The also consider the corner if all
 //! their adjacent tile are wall.
 
-use std::str::Matches;
-
 use bevy::math::bool;
 use bevy::prelude::*;
-use bevy::render::texture;
-use rand::seq::SliceRandom;
-use rand::thread_rng;
 
 use crate::prelude::*;
 
 mod wall;
-use wall::WallPiece;
 
 mod generator;
 pub use generator::*;
@@ -61,91 +55,6 @@ pub struct SubTile;
 /// Resource holding the Global map and current loaded room.
 #[derive(Resource)]
 pub struct Map(pub Handle<RoomLayout>);
-
-/// Render all the tile map tile. This system only run when the tile map is changes.
-pub fn render_tile_map(
-    mut commands: Commands,
-    room_layouts: Res<Assets<RoomLayout>>,
-    world: Res<Map>,
-    tiles: Query<Entity, With<Tile>>,
-) {
-    if !world.is_changed() {
-        return;
-    }
-
-    info!("Room changes rendering new room");
-
-    for tile in tiles.iter() {
-        commands.entity(tile).despawn_recursive();
-    }
-
-    let mut ground_tile: Vec<(AtlasSprite, GridTransform, Transform, Tile)> =
-        Vec::with_capacity((WIDTH * HEIGHT) as usize);
-
-    let Some(tile_map) = room_layouts.get(&world.0) else {
-        return;
-    };
-
-    for (y, row) in tile_map.layout.iter().enumerate() {
-        for (x, tile) in row.iter().enumerate() {
-            let position =
-                GridTransform::from_xy(i32::try_from(x).unwrap(), i32::try_from(y).unwrap());
-
-            if matches!(tile, TileType::Ground) {
-                ground_tile.push((
-                    AtlasSprite::new(
-                        *[
-                            Texture::Blank,
-                            Texture::Blank,
-                            Texture::Blank,
-                            Texture::Blank,
-                            Texture::Blank,
-                            Texture::Blank,
-                            Texture::Blank,
-                            Texture::Soil,
-                            Texture::Flower,
-                            Texture::Grass,
-                        ]
-                        .choose(&mut thread_rng())
-                        .unwrap(),
-                    ),
-                    position,
-                    Transform::from_xyz(0.0, 0.0, -10.0),
-                    Tile,
-                ));
-            }
-
-            if matches!(tile, TileType::Wall) {
-                let neighbour = tile_map.get_neighbour_wall(UVec2::new(
-                    u32::try_from(x).unwrap(),
-                    u32::try_from(y).unwrap(),
-                ));
-
-                commands
-                    .spawn((Tile, position, Visibility::Inherited))
-                    .with_children(|t| {
-                        t.spawn(WallPiece::new(true, true, neighbour));
-                        t.spawn(WallPiece::new(true, false, neighbour));
-
-                        t.spawn(WallPiece::new(false, true, neighbour));
-                        t.spawn(WallPiece::new(false, false, neighbour));
-                    });
-            }
-            if matches!(tile, TileType::Door) {
-                commands.spawn((
-                    AtlasSprite::new(Texture::DoorN),
-                    position,
-                    Transform::from_xyz(0.0, 0.0, -10.0),
-                    Tile,
-                ));
-            }
-        }
-    }
-
-    commands.spawn_batch(ground_tile);
-
-    info!("Tile map finish rendering");
-}
 
 /// Insert the resource for the global [`Map`]
 pub fn setup_tile_map(mut commands: Commands, asset_server: Res<AssetServer>) {
