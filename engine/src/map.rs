@@ -21,32 +21,7 @@ pub use generator::*;
 mod asset;
 pub use asset::*;
 
-/// Enum holding type of tile that the tile map can display.
-#[derive(Clone, Copy, Debug)]
-pub enum TileType {
-    /// Wall tile. Automatically connect to other wall tile.
-    Wall,
-    /// Ground tile. Visual picked at random with weights:
-    /// - 70% Blank.
-    /// - 30%: Soil, Flower or Grass.
-    Ground,
-    /// Door tile.
-    Door,
-}
-
-impl TileType {
-    /// Return if the tile is a [`TileType::Wall`]
-    #[must_use]
-    pub fn is_wall(self) -> bool {
-        matches!(self, TileType::Wall)
-    }
-}
-
 type NeighbourTile = OctCompass<bool>;
-
-/// Marker Component for a tile.
-#[derive(Component)]
-pub struct Tile;
 
 /// Marker component for a sub tile.
 #[derive(Component)]

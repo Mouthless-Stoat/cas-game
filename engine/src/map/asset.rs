@@ -10,7 +10,28 @@ use thiserror::Error;
 
 use crate::prelude::*;
 
-use super::{NeighbourTile, TileType};
+use super::NeighbourTile;
+
+/// Enum holding type of tile that the tile map can display.
+#[derive(Clone, Copy, Debug)]
+pub enum TileType {
+    /// Wall tile. Automatically connect to other wall tile.
+    Wall,
+    /// Ground tile. Visual picked at random with weights:
+    /// - 70% Blank.
+    /// - 30%: Soil, Flower or Grass.
+    Ground,
+    /// Door tile.
+    Door,
+}
+
+impl TileType {
+    /// Return if the tile is a [`TileType::Wall`]
+    #[must_use]
+    pub fn is_wall(self) -> bool {
+        matches!(self, TileType::Wall)
+    }
+}
 
 /// Asset for a room layout to be load by the engine.
 #[derive(Asset, TypePath)]
