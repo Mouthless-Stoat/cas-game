@@ -4,6 +4,7 @@ use std::time::Duration;
 
 use bevy::prelude::*;
 use engine::prelude::*;
+use engine::render::unload_outside;
 
 fn main() {
     let default_plugin = DefaultPlugins
@@ -22,14 +23,15 @@ fn main() {
         .init_asset::<RoomLayout>()
         .init_asset_loader::<RoomLayoutLoader>()
         .add_systems(Startup, (setup, create_global_atlas, setup_tile_map))
+        .add_systems(Update, (generate_map, unload_outside))
         .add_systems(Update, (update_transform, transform_animation))
-        .add_systems(Update, render_tile_map)
         .add_systems(PostUpdate, (atlas_to_sprite, input))
         .run();
 }
 
 fn setup(mut commands: Commands) {
     commands.spawn((
+        GridTransform::from_xy(WIDTH / 2, HEIGHT / 2),
         Camera2d,
         OrthographicProjection {
             scaling_mode: bevy::render::camera::ScalingMode::FixedVertical {
@@ -39,6 +41,8 @@ fn setup(mut commands: Commands) {
         },
     ));
     commands.spawn(Player);
+    commands.spawn(Generator(4));
+    commands.insert_resource(Visited(vec![]));
 }
 
 fn input(

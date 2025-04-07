@@ -3,6 +3,8 @@
 //! Library for the game.
 //! Contain implementation for various engine functions and components.
 
+use bevy::ecs::component::Component;
+
 pub mod prelude;
 
 pub mod animation;
@@ -10,6 +12,7 @@ pub mod atlas;
 pub mod grid;
 pub mod map;
 pub mod player;
+pub mod render;
 
 /// Size of each tile.
 pub static TILE_SIZE: u16 = 8;
@@ -40,7 +43,7 @@ impl Direction {
 }
 
 /// Compass type
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Default)]
 #[allow(missing_docs)]
 pub struct OctCompass<T> {
     pub north: T,
@@ -54,7 +57,7 @@ pub struct OctCompass<T> {
     pub north_west: T,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Default)]
 #[allow(missing_docs)]
 pub struct QuadCompass<T> {
     pub north: T,

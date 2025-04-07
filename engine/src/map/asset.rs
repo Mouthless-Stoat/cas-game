@@ -14,7 +14,10 @@ use super::{NeighbourTile, TileType};
 
 /// Asset for a room layout to be load by the engine
 #[derive(Asset, TypePath)]
-pub struct RoomLayout(pub [[TileType; WIDTH as usize]; HEIGHT as usize]);
+pub struct RoomLayout {
+    pub doors: QuadCompass<bool>,
+    pub layout: [[TileType; WIDTH as usize]; HEIGHT as usize],
+}
 
 /// Loader for [`RoomLayout`] asset
 #[derive(Default)]
@@ -30,6 +33,8 @@ pub enum RoomLayoutError {
     Ascii(String),
     #[error("Invalid tile character in room asset: {0}")]
     TileType(char),
+    #[error("Invalid door character in room asset: {0}")]
+    DoorDir(char),
 }
 
 impl AssetLoader for RoomLayoutLoader {
@@ -55,8 +60,22 @@ impl AssetLoader for RoomLayoutLoader {
         let string = String::from_utf8(bytes).unwrap();
 
         let mut tile_map = vec![vec![TileType::Wall; WIDTH as usize]];
+        let mut lines = string.lines();
 
-        for line in string.lines() {
+        let first = lines.next().unwrap();
+        let mut doors = QuadCompass::default();
+
+        for char in first.chars() {
+            match char {
+                'N' => doors.north = true,
+                'E' => doors.east = true,
+                'S' => doors.south = true,
+                'W' => doors.west = true,
+                _ => return Err(RoomLayoutError::DoorDir(char)),
+            }
+        }
+
+        for line in lines {
             let mut curr = vec![TileType::Wall];
             for c in line.chars() {
                 curr.push(match c {
@@ -71,10 +90,27 @@ impl AssetLoader for RoomLayoutLoader {
 
         tile_map.push(vec![TileType::Wall; WIDTH as usize]);
 
+        let horz_mid = ((WIDTH - 1) / 2) as usize;
+        let vert_mid = ((HEIGHT - 1) / 2) as usize;
+
+        if doors.north {
+            tile_map[0][horz_mid] = TileType::Door;
+        }
+        if doors.east {
+            tile_map[vert_mid][(WIDTH - 1) as usize] = TileType::Door;
+        }
+        if doors.south {
+            tile_map[(HEIGHT - 1) as usize][horz_mid] = TileType::Door;
+        }
+        if doors.west {
+            tile_map[vert_mid][0] = TileType::Door;
+        }
+
         let len = tile_map.len();
 
-        Ok(RoomLayout(
-            tile_map
+        Ok(RoomLayout {
+            doors,
+            layout: tile_map
                 .into_iter()
                 .map(|row| {
                     let len = row.len();
@@ -89,7 +125,7 @@ impl AssetLoader for RoomLayoutLoader {
                 .unwrap_or_else(|_| {
                     panic!("Tile map have incorrect height, expected {HEIGHT}, but recieved {len}")
                 }),
-        ))
+        })
     }
 
     fn extensions(&self) -> &[&str] {
@@ -102,17 +138,19 @@ impl RoomLayout {
     #[must_use]
     pub fn get_tile(&self, position: UVec2) -> TileType {
         *self
-            .0
+            .layout
             .get(position.y as usize)
             .and_then(|v| v.get(position.x as usize))
             .unwrap_or(&TileType::Wall)
     }
 
     fn get_wall_status(&self, position: UVec2, shortcut: bool, offset: IVec2) -> bool {
-        shortcut
-            .then_some(TileType::Wall)
-            .unwrap_or_else(|| self.get_tile((position.as_ivec2() + offset).as_uvec2()))
-            .is_wall()
+        matches!(
+            shortcut
+                .then_some(TileType::Wall)
+                .unwrap_or_else(|| self.get_tile((position.as_ivec2() + offset).as_uvec2())),
+            TileType::Wall | TileType::Door
+        )
     }
 
     /// Get neighbouring wall tile.

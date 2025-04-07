@@ -8,8 +8,11 @@
 //! tile, above and right for the top right sub tile, etc. The also consider the corner if all
 //! their adjacent tile are wall.
 
+use std::str::Matches;
+
 use bevy::math::bool;
 use bevy::prelude::*;
+use bevy::render::texture;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 
@@ -17,6 +20,9 @@ use crate::prelude::*;
 
 mod wall;
 use wall::WallPiece;
+
+mod generator;
+pub use generator::*;
 
 mod asset;
 pub use asset::*;
@@ -30,6 +36,8 @@ pub enum TileType {
     /// - 70% Blank.
     /// - 30%: Soil, Flower or Grass.
     Ground,
+    /// Door tile.
+    Door,
 }
 
 impl TileType {
@@ -78,7 +86,7 @@ pub fn render_tile_map(
         return;
     };
 
-    for (y, row) in tile_map.0.iter().enumerate() {
+    for (y, row) in tile_map.layout.iter().enumerate() {
         for (x, tile) in row.iter().enumerate() {
             let position =
                 GridTransform::from_xy(i32::try_from(x).unwrap(), i32::try_from(y).unwrap());
@@ -122,6 +130,14 @@ pub fn render_tile_map(
                         t.spawn(WallPiece::new(false, true, neighbour));
                         t.spawn(WallPiece::new(false, false, neighbour));
                     });
+            }
+            if matches!(tile, TileType::Door) {
+                commands.spawn((
+                    AtlasSprite::new(Texture::DoorN),
+                    position,
+                    Transform::from_xyz(0.0, 0.0, -10.0),
+                    Tile,
+                ));
             }
         }
     }

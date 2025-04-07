@@ -9,7 +9,7 @@ use crate::prelude::*;
 
 /// Grid transform component to define a grid position. Interface with the [`Transform`] component.
 #[allow(missing_docs)]
-#[derive(Component, Default, Clone, Copy)]
+#[derive(Component, Default, Clone, Copy, PartialEq)]
 #[require(Transform)]
 pub struct GridTransform {
     pub translation: IVec2,
@@ -50,6 +50,7 @@ impl GridTransform {
     }
 
     /// Create a new [`GridTransform`] using a given `(x, y)`
+    #[must_use]
     pub fn from_xy(x: impl Into<i32>, y: impl Into<i32>) -> Self {
         GridTransform {
             translation: IVec2::new(x.into(), y.into()),
@@ -61,11 +62,13 @@ impl GridTransform {
     #[must_use]
     pub fn as_vec3(&self) -> Vec3 {
         let f32_tile = f32::from(TILE_SIZE);
-        let i32_width = i32::from(WIDTH);
-        let i32_height = i32::from(HEIGHT);
+        let f32_width = f32::from(WIDTH - 1);
+        let f32_height = f32::from(HEIGHT - 1);
 
-        let x = (self.translation.x - i32_width / 2) as f32 * f32_tile;
-        let y = (i32_height / 2 - self.translation.y) as f32 * f32_tile;
+        let v = self.translation.as_vec2();
+
+        let x = (v.x - f32_width / 2.0) * f32_tile;
+        let y = (f32_height / 2.0 - v.y) * f32_tile;
 
         Vec3::new(x, y, 0.0)
     }
