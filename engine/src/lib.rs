@@ -41,7 +41,7 @@ impl Direction {
 }
 
 /// Compass type
-#[derive(Clone, Copy, Default)]
+#[derive(Clone, Copy, Default, Debug)]
 #[allow(missing_docs)]
 pub struct OctCompass<T> {
     pub north: T,
@@ -55,7 +55,7 @@ pub struct OctCompass<T> {
     pub north_west: T,
 }
 
-#[derive(Clone, Copy, Default)]
+#[derive(Clone, Copy, Default, Debug)]
 #[allow(missing_docs)]
 pub struct QuadCompass<T> {
     pub north: T,

@@ -8,6 +8,7 @@
 //! tile, above and right for the top right sub tile, etc. The also consider the corner if all
 //! their adjacent tile are wall.
 
+use bevy::asset::LoadedFolder;
 use bevy::math::bool;
 use bevy::prelude::*;
 use bevy::utils::hashbrown::HashMap;
@@ -28,20 +29,31 @@ type NeighbourTile = OctCompass<bool>;
 #[derive(Component)]
 pub struct SubTile;
 
+#[derive(Resource, Debug)]
+pub struct RoomList(pub Handle<LoadedFolder>);
+
 /// Resource holding the Global map and current loaded room.
-#[derive(Resource)]
+#[derive(Resource, Debug)]
 pub struct Map {
     /// Current room to interact with
-    pub curr_room: Handle<RoomLayout>,
+    pub curr_room_pos: (i32, i32),
     /// Hashmap of room in the map.
     pub rooms: HashMap<(i32, i32), RoomLayout>,
 }
 
+impl Map {
+    /// Get the current room layout.
+    #[must_use]
+    pub fn curr_room(&self) -> Option<&RoomLayout> {
+        self.rooms.get(&self.curr_room_pos)
+    }
+}
+
 /// Insert the resource for the global [`Map`]
 pub fn setup_tile_map(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let tile_map = asset_server.load("rooms/test.room");
+    commands.insert_resource(RoomList(asset_server.load_folder("rooms")));
     commands.insert_resource(Map {
-        curr_room: tile_map,
+        curr_room_pos: (0, 0),
         rooms: HashMap::new(),
     });
 }

@@ -4,6 +4,7 @@
 use bevy::{
     asset::{io::Reader, Asset, AssetLoader, LoadContext},
     math::{IVec2, UVec2},
+    prelude::*,
     reflect::TypePath,
 };
 use thiserror::Error;
@@ -34,7 +35,7 @@ impl TileType {
 }
 
 /// Asset for a room layout to be load by the engine.
-#[derive(Asset, TypePath, Clone, Copy)]
+#[derive(Asset, TypePath, Clone, Copy, Debug)]
 pub struct RoomLayout {
     /// Rooms for this room layout.
     pub doors: QuadCompass<bool>,

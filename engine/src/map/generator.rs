@@ -1,3 +1,4 @@
+use bevy::asset::LoadedFolder;
 use bevy::prelude::*;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
@@ -20,8 +21,9 @@ pub struct Generator(pub u8);
 pub fn generate_map(
     mut commands: Commands,
     mut map: ResMut<Map>,
-    asset_server: Res<AssetServer>,
     room_layouts: Res<Assets<RoomLayout>>,
+    room_list: Res<RoomList>,
+    loaded_folders: Res<Assets<LoadedFolder>>,
     generators: Query<(Entity, &Generator, &GridTransform)>,
 ) {
     // process every generator
@@ -32,8 +34,12 @@ pub fn generate_map(
 
         let mut ground_tile: Vec<(AtlasSprite, GridTransform, Transform)> =
             Vec::with_capacity((WIDTH * HEIGHT) as usize);
-
-        let Some(room) = room_layouts.get(&asset_server.load("rooms/test.room")) else {
+        let Some(room) = loaded_folders
+            .get(&room_list.0)
+            .and_then(|f| f.handles.first())
+            .map(|h| h.id().typed_unchecked::<RoomLayout>())
+            .and_then(|l| room_layouts.get(l))
+        else {
             return;
         };
 

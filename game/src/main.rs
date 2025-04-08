@@ -47,7 +47,6 @@ fn setup(mut commands: Commands) {
 fn input(
     keyboard_input: Res<ButtonInput<KeyCode>>,
     world: Res<Map>,
-    tiles_map: Res<Assets<RoomLayout>>,
     mut transform: Single<&mut GridTransform, With<Player>>,
     mut animation: Single<&mut TransformAnimation, With<Player>>,
     mut sprite: Single<&mut AtlasSprite, With<Player>>,
@@ -67,7 +66,7 @@ fn input(
                 return;
             };
 
-            let Some(tile_map) = tiles_map.get(&world.curr_room) else {
+            let Some(tile_map) = world.curr_room() else {
                 return;
             };
 
