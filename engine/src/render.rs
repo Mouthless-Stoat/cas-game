@@ -14,8 +14,11 @@ pub fn unload_outside(
         let diff = (trans.translation - camera_trans.translation)
             .abs()
             .as_vec2();
-        if diff.x > (WIDTH / 2).into() || diff.y > (HEIGHT / 2).into() {
-            *vis = Visibility::Hidden;
-        }
+
+        *vis = if diff.x > (WIDTH / 2).into() || diff.y > (HEIGHT / 2).into() {
+            Visibility::Hidden
+        } else {
+            Visibility::Visible
+        };
     }
 }
