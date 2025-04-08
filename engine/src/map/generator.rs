@@ -12,13 +12,12 @@ use super::wall::WallPiece;
 #[require(GridTransform)]
 pub struct Generator(pub u8);
 
-/// Generate the map.
+/// Proc the mao genrator to start generating the next depth.
 ///
-/// Map generation start with a central generator entity. This entity generate a single room them
-/// create copy of itself in every direction with a door with one less depth. This is repeated
-/// until the generator depth reach 0.
+/// The generation start with a central generator that spawn children in every direction with a
+/// door.
 #[allow(clippy::too_many_lines)]
-pub fn generate_map(
+pub fn proc_generator(
     mut commands: Commands,
     mut map: ResMut<Map>,
     room_layouts: Res<Assets<RoomLayout>>,
