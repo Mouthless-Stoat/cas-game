@@ -23,7 +23,7 @@ fn main() {
         .init_asset::<RoomLayout>()
         .init_asset_loader::<RoomLayoutLoader>()
         .add_systems(Startup, (setup, create_global_atlas, setup_tile_map))
-        .add_systems(Update, (generate_map, unload_outside))
+        .add_systems(Update, (proc_generator, update_camera, unload_outside))
         .add_systems(Update, (update_transform, transform_animation))
         .add_systems(PostUpdate, (atlas_to_sprite, input))
         .run();
@@ -44,49 +44,68 @@ fn setup(mut commands: Commands) {
     commands.spawn(Generator(4));
 }
 
+// TODO: Use an input event instead of this
 fn input(
     keyboard_input: Res<ButtonInput<KeyCode>>,
-    world: Res<Map>,
+    mut map: ResMut<Map>,
     mut transform: Single<&mut GridTransform, With<Player>>,
     mut animation: Single<&mut TransformAnimation, With<Player>>,
     mut sprite: Single<&mut AtlasSprite, With<Player>>,
 ) {
     for i in keyboard_input.get_just_pressed() {
-        let dir = match i {
+        let move_dir = match i {
             KeyCode::KeyW | KeyCode::ArrowUp => Direction::Up,
             KeyCode::KeyS | KeyCode::ArrowDown => Direction::Down,
             KeyCode::KeyA | KeyCode::ArrowLeft => Direction::Left,
             KeyCode::KeyD | KeyCode::ArrowRight => Direction::Right,
             _ => Direction::Zero,
         };
-        if !dir.is_zero() && animation.duration.is_zero() {
+        if !move_dir.is_zero() && animation.duration.is_zero() {
             animation.old_transform = **transform;
 
-            let Ok(headed_position) = transform.translate(dir, 1).translation.try_into() else {
+            let headed_position = transform.translate(move_dir, 1).translation;
+
+            let Some(tile_map) = map.curr_room() else {
                 return;
             };
 
-            let Some(tile_map) = world.curr_room() else {
-                return;
-            };
+            let mut just_door = false;
 
-            if !tile_map.get_tile(headed_position).is_wall() {
-                transform.translate_mut(dir, 1);
+            match tile_map.get_tile(
+                headed_position
+                    .rem_euclid(IVec2::new(WIDTH.into(), HEIGHT.into()))
+                    .as_uvec2(),
+            ) {
+                TileType::Ground => transform.translate_mut(move_dir, 1),
+                TileType::Door(dir) => {
+                    match dir {
+                        CompassDir::North => map.curr_room_pos.1 -= 1,
+                        CompassDir::East => map.curr_room_pos.0 += 1,
+                        CompassDir::South => map.curr_room_pos.1 += 1,
+                        CompassDir::West => map.curr_room_pos.0 -= 1,
+                        _ => unreachable!(),
+                    }
+                    transform.translate_mut(move_dir, 3);
+                    just_door = true;
+                }
+                _ => (),
             }
 
-            if matches!(dir, Direction::Left) {
+            if matches!(move_dir, Direction::Left) {
                 sprite.flip_y = true;
-            } else if matches!(dir, Direction::Right) {
+            } else if matches!(move_dir, Direction::Right) {
                 sprite.flip_y = false;
             }
 
-            animation.duration = Duration::from_millis(100);
+            animation.duration = Duration::from_millis(if just_door { 200 } else { 100 });
             break;
         }
     }
+}
 
-    transform.translation = transform.translation.clamp(
-        IVec2::ZERO,
-        IVec2::new(i32::from(WIDTH - 1), i32::from(HEIGHT - 1)),
+fn update_camera(mut camera: Single<&mut GridTransform, With<Camera>>, map: Res<Map>) {
+    camera.translation = IVec2::new(
+        map.curr_room_pos.0 * WIDTH as i32 + WIDTH as i32 / 2,
+        map.curr_room_pos.1 * HEIGHT as i32 + HEIGHT as i32 / 2,
     );
 }
