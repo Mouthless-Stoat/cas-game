@@ -29,6 +29,7 @@ type NeighbourTile = OctCompass<bool>;
 #[derive(Component)]
 pub struct SubTile;
 
+/// Preload list of room layout to use in mao generation.
 #[derive(Resource, Debug)]
 pub struct RoomList(pub Handle<LoadedFolder>);
 
