@@ -36,6 +36,8 @@ pub struct SubTile;
 pub struct RoomList(pub Handle<LoadedFolder>);
 
 impl RoomList {
+    /// Pick a room from a loaded folder and some query about which door is open.
+    #[must_use]
     pub fn pick_room(
         door: QuadCompass<bool>,
         room_list: &LoadedFolder,

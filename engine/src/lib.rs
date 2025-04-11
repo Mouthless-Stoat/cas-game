@@ -23,6 +23,7 @@ pub static WIDTH: u16 = 21;
 /// Visible area height
 pub static HEIGHT: u16 = 13;
 
+/// Resource holding one shot system id.
 #[derive(Resource)]
 pub struct OneShotSystems(pub HashMap<String, SystemId>);
 

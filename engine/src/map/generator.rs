@@ -1,6 +1,6 @@
 use bevy::asset::LoadedFolder;
 use bevy::prelude::*;
-use bevy::utils::{info, HashMap};
+use bevy::utils::HashMap;
 use rand::seq::SliceRandom;
 use rand::{thread_rng, Rng};
 
@@ -14,9 +14,11 @@ use super::Map;
 #[require(GridTransform)]
 pub struct Generator(pub u8);
 
+/// List of visited location during map generation.
 #[derive(Resource)]
 pub struct Visited(pub HashMap<(i32, i32), QuadCompass<bool>>);
 
+/// Place hoder room object.
 #[derive(Component)]
 pub struct Room(QuadCompass<bool>);
 
