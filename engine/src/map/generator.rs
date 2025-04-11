@@ -23,7 +23,6 @@ pub struct Room(QuadCompass<bool>);
 ///
 /// The generation start with a central generator that spawn children in every direction with a
 /// door.
-#[allow(clippy::too_many_lines)]
 pub fn proc_generator(
     mut commands: Commands,
     mut visited: ResMut<Visited>,
@@ -41,13 +40,12 @@ pub fn proc_generator(
             trans.translation.y / HEIGHT as i32,
         );
 
-        if gen.0 == 0 || visited.0.contains_key(&key) {
-            commands.entity(entity).despawn();
-            continue;
-        }
-
         // despawn this generator
         commands.entity(entity).despawn();
+
+        if gen.0 == 0 || visited.0.contains_key(&key) {
+            continue;
+        }
 
         // spawn new child to continue generating
         let mut vec = vec![];
@@ -96,14 +94,6 @@ pub fn proc_generator(
         visited.0.insert(key, doors);
 
         for t in vec {
-            let key = (
-                t.translation.x / WIDTH as i32,
-                t.translation.y / HEIGHT as i32,
-            );
-            if visited.0.contains_key(&key) {
-                continue;
-            }
-
             commands.spawn((Generator(gen.0 - 1), t));
         }
 

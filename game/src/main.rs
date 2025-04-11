@@ -50,14 +50,14 @@ fn setup(mut commands: Commands) {
         GridTransform::from_xy(WIDTH / 2, HEIGHT / 2),
         Camera2d,
         OrthographicProjection {
-            //scaling_mode: bevy::render::camera::ScalingMode::FixedVertical {
-            //    viewport_height: f32::from(TILE_SIZE * (HEIGHT + 2)),
-            //},
+            scaling_mode: bevy::render::camera::ScalingMode::FixedVertical {
+                viewport_height: f32::from(TILE_SIZE * (HEIGHT + 2)),
+            },
             ..OrthographicProjection::default_2d()
         },
     ));
     commands.spawn(Player);
-    commands.spawn(Generator(5));
+    commands.spawn(Generator(10));
 }
 
 // TODO: Use an input event instead of this
