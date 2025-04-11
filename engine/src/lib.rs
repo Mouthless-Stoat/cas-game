@@ -3,6 +3,9 @@
 //! Library for the game.
 //! Contain implementation for various engine functions and components.
 
+use bevy::ecs::system::{Resource, SystemId};
+use bevy::utils::HashMap;
+
 pub mod prelude;
 
 pub mod animation;
@@ -19,6 +22,9 @@ pub static TILE_SIZE: u16 = 8;
 pub static WIDTH: u16 = 21;
 /// Visible area height
 pub static HEIGHT: u16 = 13;
+
+#[derive(Resource)]
+pub struct OneShotSystems(pub HashMap<String, SystemId>);
 
 /// Enum for direction.
 #[allow(missing_docs)]
@@ -41,7 +47,7 @@ impl Direction {
 }
 
 /// Compass type
-#[derive(Clone, Copy, Default, Debug)]
+#[derive(Clone, Copy, Default, Debug, PartialEq, Eq)]
 #[allow(missing_docs)]
 pub struct OctCompass<T> {
     pub north: T,
@@ -55,7 +61,7 @@ pub struct OctCompass<T> {
     pub north_west: T,
 }
 
-#[derive(Clone, Copy, Default, Debug)]
+#[derive(Clone, Copy, Default, Debug, PartialEq, Eq)]
 #[allow(missing_docs)]
 pub struct QuadCompass<T> {
     pub north: T,

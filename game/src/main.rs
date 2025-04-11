@@ -3,8 +3,8 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
+use bevy::utils::HashMap;
 use engine::prelude::*;
-use engine::render::unload_outside;
 
 fn main() {
     let default_plugin = DefaultPlugins
@@ -17,16 +17,32 @@ fn main() {
             ..default()
         });
 
-    App::new()
-        .add_plugins(default_plugin)
+    let mut one_shot_systems = OneShotSystems(HashMap::new());
+
+    let mut app = App::new();
+    app.add_plugins(default_plugin)
         .insert_resource(ClearColor(Color::BLACK))
         .init_asset::<RoomLayout>()
         .init_asset_loader::<RoomLayoutLoader>()
         .add_systems(Startup, (setup, create_global_atlas, setup_tile_map))
-        .add_systems(Update, (proc_generator, update_camera, unload_outside))
+        .add_systems(
+            Update,
+            (
+                proc_generator,
+                update_camera,
+                //unload_outside,
+            ),
+        )
         .add_systems(Update, (update_transform, transform_animation))
-        .add_systems(PostUpdate, (atlas_to_sprite, input))
-        .run();
+        .add_systems(PostUpdate, (atlas_to_sprite, input));
+
+    one_shot_systems
+        .0
+        .insert("fill_room".into(), app.register_system(fill_room));
+
+    app.insert_resource(one_shot_systems);
+
+    app.run();
 }
 
 fn setup(mut commands: Commands) {
@@ -34,14 +50,14 @@ fn setup(mut commands: Commands) {
         GridTransform::from_xy(WIDTH / 2, HEIGHT / 2),
         Camera2d,
         OrthographicProjection {
-            scaling_mode: bevy::render::camera::ScalingMode::FixedVertical {
-                viewport_height: f32::from(TILE_SIZE * (HEIGHT + 2)),
-            },
+            //scaling_mode: bevy::render::camera::ScalingMode::FixedVertical {
+            //    viewport_height: f32::from(TILE_SIZE * (HEIGHT + 2)),
+            //},
             ..OrthographicProjection::default_2d()
         },
     ));
     commands.spawn(Player);
-    commands.spawn(Generator(4));
+    commands.spawn(Generator(5));
 }
 
 // TODO: Use an input event instead of this
@@ -104,6 +120,10 @@ fn input(
 }
 
 fn update_camera(mut camera: Single<&mut GridTransform, With<Camera>>, map: Res<Map>) {
+    if !map.is_changed() {
+        return;
+    }
+
     camera.translation = IVec2::new(
         map.curr_room_pos.0 * WIDTH as i32 + WIDTH as i32 / 2,
         map.curr_room_pos.1 * HEIGHT as i32 + HEIGHT as i32 / 2,

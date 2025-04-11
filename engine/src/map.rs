@@ -12,6 +12,8 @@ use bevy::asset::LoadedFolder;
 use bevy::math::bool;
 use bevy::prelude::*;
 use bevy::utils::hashbrown::HashMap;
+use rand::seq::SliceRandom;
+use rand::thread_rng;
 
 use crate::prelude::*;
 
@@ -33,6 +35,26 @@ pub struct SubTile;
 #[derive(Resource, Debug)]
 pub struct RoomList(pub Handle<LoadedFolder>);
 
+impl RoomList {
+    pub fn pick_room(
+        door: QuadCompass<bool>,
+        room_list: &LoadedFolder,
+        room_layouts: &Res<Assets<RoomLayout>>,
+    ) -> Option<RoomLayout> {
+        let mut vec = vec![];
+        for handle in &room_list.handles {
+            let id = handle.id().typed_unchecked::<RoomLayout>();
+            if let Some(layout) = room_layouts.get(id) {
+                if layout.doors == door {
+                    vec.push(*layout);
+                }
+            }
+        }
+
+        vec.choose(&mut thread_rng()).copied()
+    }
+}
+
 /// Resource holding the Global map and current loaded room.
 #[derive(Resource, Debug)]
 pub struct Map {
@@ -53,6 +75,7 @@ impl Map {
 /// Insert the resource for the global [`Map`]
 pub fn setup_tile_map(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.insert_resource(RoomList(asset_server.load_folder("rooms")));
+    commands.insert_resource(Visited(HashMap::new()));
     commands.insert_resource(Map {
         curr_room_pos: (0, 0),
         rooms: HashMap::new(),
