@@ -18,6 +18,7 @@ use rand::thread_rng;
 use crate::prelude::*;
 
 mod wall;
+pub(crate) use wall::*;
 
 mod generator;
 pub use generator::*;

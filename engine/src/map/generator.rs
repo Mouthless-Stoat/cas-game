@@ -6,9 +6,6 @@ use rand::{thread_rng, Rng};
 
 use crate::prelude::*;
 
-use super::wall::WallPiece;
-use super::Map;
-
 /// Generator object use to generate the map
 #[derive(Component)]
 #[require(GridTransform)]

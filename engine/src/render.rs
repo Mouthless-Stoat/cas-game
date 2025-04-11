@@ -2,8 +2,7 @@
 
 use bevy::prelude::*;
 
-use crate::grid::GridTransform;
-use crate::{HEIGHT, WIDTH};
+use crate::prelude::*;
 
 /// Unload any atlast sprite that is outside of the camera "viewport"
 pub fn unload_outside(
